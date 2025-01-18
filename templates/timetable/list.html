@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Timetable</h1>
+
+    <!-- Form to add a timetable -->
+    <form id="add-timetable-form">
+        {% csrf_token %}
+        <input type="text" id="day" name="day" placeholder="Day">
+        <input type="text" id="period" name="period" placeholder="Period">
+        <input type="text" id="classname" name="classname" placeholder="Class">
+        <input type="text" id="subject_name" name="subject_name" placeholder="Subject">
+        <input type="time" id="start_time" name="start_time" placeholder="Start Time">
+        <input type="time" id="end_time" name="end_time" placeholder="End Time">
+        <button type="submit">Add Timetable</button>
+    </form>
+
+    <br>
+
+    <!-- Table to display the timetable -->
+    <table id="timetable-table" border="1">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Period</th>
+                <th>Class</th>
+                <th>Subject</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for timetable in timetables %}
+                <tr id="timetable-{{ timetable.id }}">
+                    <td>{{ timetable.day }}</td>
+                    <td>{{ timetable.period }}</td>
+                    <td>{{ timetable.classname }}</td>
+                    <td>{{ timetable.subject_name }}</td>
+                    <td>{{ timetable.start_time }}</td>
+                    <td>{{ timetable.end_time }}</td>
+                    <td>
+                        <button class="edit-btn" data-id="{{ timetable.id }}">Edit</button>
+                        <button class="delete-btn" data-id="{{ timetable.id }}">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // Add timetable
+        $('#add-timetable-form').submit(function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '{% url "add_timetable" %}',
+                type: 'POST',
+                data: {
+                    'day': $('#day').val(),
+                    'period': $('#period').val(),
+                    'classname': $('#classname').val(),
+                    'subject_name': $('#subject_name').val(),
+                    'start_time': $('#start_time').val(),
+                    'end_time': $('#end_time').val(),
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();  // Refresh the page to update the table
+                    }
+                }
+            });
+        });
+
+        // Edit timetable
+        $(document).on('click', '.edit-btn', function() {
+            const timetableId = $(this).data('id');
+
+            $.ajax({
+                url: '{% url "update_timetable" %}',
+                type: 'POST',
+                data: {
+                    'id': timetableId,
+                    'day': prompt('Enter new day:'),
+                    'period': prompt('Enter new period:'),
+                    'classname': prompt('Enter new class:'),
+                    'subject_name': prompt('Enter new subject:'),
+                    'start_time': prompt('Enter new start time:'),
+                    'end_time': prompt('Enter new end time:'),
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();  // Refresh the page to update the table
+                    }
+                }
+            });
+        });
+
+        // Delete timetable
+        $(document).on('click', '.delete-btn', function() {
+            const timetableId = $(this).data('id');
+            if (confirm('Are you sure you want to delete this timetable?')) {
+                $.ajax({
+                    url: '{% url "delete_timetable" %}',
+                    type: 'POST',
+                    data: {
+                        'id': timetableId,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            $('#timetable-' + timetableId).remove();  // Remove the deleted row from the table
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

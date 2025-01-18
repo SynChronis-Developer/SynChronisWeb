@@ -1,0 +1,189 @@
+/* General Page Styles */
+body#add-notices {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f8ff;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light Theme */
+body#add-notices.light {
+    background-color: #f4f7fa;
+    color: #2e3b4e;
+}
+
+/* Dark Theme */
+body#add-notices.dark {
+    background-color: #2e2a47;
+    color: #ffffff;
+}
+
+/* Title Styles */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Form Container Styles */
+form#noticeForm {
+    width: 100%;
+    max-width: 600px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+body#add-notices.dark form#noticeForm {
+    background-color: #374151;
+    color: #f4f4f4;
+}
+
+/* Form Input Styles */
+input[type="text"], textarea, select, input[type="file"], input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    color: #2e3b4e;
+}
+
+body#add-notices.dark input[type="text"], body#add-notices.dark textarea, body#add-notices.dark select, body#add-notices.dark input[type="file"], body#add-notices.dark input[type="date"] {
+    background-color: #374151;
+    color: #f4f4f4;
+    border-color: #4b5563;
+}
+
+/* Button Styles */
+button {
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s ease;
+}
+
+/* Create Notice Button */
+button[type="submit"] {
+    background-color: #4ade80;
+    color: #ffffff;
+}
+
+button[type="submit"]:hover {
+    background-color: #22c55e;
+    transform: scale(1.05);
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: #fbbf24;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    background-color: #f59e0b;
+    transform: scale(1.1);
+}
+
+.theme-toggle-btn i {
+    margin-left: 5px;
+}
+
+/* Icon Color for Dark Theme */
+body#add-notices.dark .theme-toggle-btn {
+    background-color: #374151;
+    color: #ffffff;
+}
+
+body#add-notices.dark .theme-toggle-btn:hover {
+    background-color: #4b5563;
+}
+
+/* Notices Table Styles */
+table#noticesTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+}
+
+table#noticesTable th, table#noticesTable td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table#noticesTable th {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+body#add-notices.dark table#noticesTable th {
+    background-color: #1f2937;
+    color: #f59e0b;
+}
+
+table#noticesTable tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+body#add-notices.dark table#noticesTable tr:nth-child(even) {
+    background-color: #2d3748;
+}
+
+/* Action Button Styles */
+button.editBtn, button.deleteBtn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+button.editBtn {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+button.deleteBtn {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+button.editBtn:hover {
+    background-color: #2563eb;
+}
+
+button.deleteBtn:hover {
+    background-color: #dc2626;
+}
+
+/* Dark Theme Actions */
+body#add-notices.dark button.editBtn {
+    background-color: #2563eb;
+}
+
+body#add-notices.dark button.deleteBtn {
+    background-color: #dc2626;
+}

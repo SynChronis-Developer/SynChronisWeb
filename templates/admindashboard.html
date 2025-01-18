@@ -1,0 +1,145 @@
+
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body class="admindashboard">
+    <!-- Theme Toggle Button -->
+<button id="theme-toggle-btn" class="theme-toggle-btn">
+    <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+</button>
+
+
+    
+
+    <div class="admindashboard-header">
+        <h1 class="admindashboard-admindashboard-gold-text">Admin Dashboard</h1>
+    </div>
+
+    <div class="admindashboard-container">
+        <!-- Teacher Section -->
+        <div class="admindashboard-row">
+            <div class="admindashboard-col">
+                <div class="admindashboard-card">
+                    <div class="admindashboard-card-header">
+                        <h2 class="admindashboard-gold-text">Teacher</h2>
+                    </div>
+                    <div class="admindashboard-card-body">
+                        <a href="/View_Teacher"><button type="button" class="admindashboard-btn btn-gold">View Teacher</button></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Table Section -->
+            <div class="admindashboard-col">
+                <div class="admindashboard-card">
+                    <div class="admindashboard-card-header">
+                        <h2 class="admindashboard-gold-text">Time Table</h2>
+                    </div>
+                    <div class="admindashboard-card-body">
+                        <a href="/timetable"><button type="button" class="admindashboard-btn btn-gold">View Time Table</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location and Attendance Section -->
+        <div class="admindashboard-row">
+            <div class="admindashboard-col">
+                <div class="admindashboard-card">
+                    <div class="admindashboard-card-header">
+                        <h2 class="admindashboard-gold-text">Location</h2>
+                    </div>
+                    <div class="admindashboard-card-body">
+                        <a href="/Location"><button type="button" class="admindashboard-btn btn-gold">View Location</button></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admindashboard-col">
+                <div class="admindashboard-card">
+                    <div class="admindashboard-card-header">
+                        <h2 class="admindashboard-gold-text">Attendance</h2>
+                    </div>
+                    <div class="admindashboard-card-body">
+                        <a href="/attendanceview"><button type="button" class="admindashboard-btn btn-gold">View Attendance</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Batch and Semester Section -->
+        <div class="admindashboard-card">
+            <div class="admindashboard-header">
+                <h2 class="admindashboard-gold-text">Manage Batch and Semester</h2>
+                <div class="admindashboard-row">
+                    <div class="admindashboard-col">
+                        <div class="admindashboard-card">
+                            <div class="admindashboard-card-header">
+                                <h2 class="admindashboard-gold-text">Batch Settings</h2>
+                            </div>
+                            <div class="admindashboard-card-body">
+                                <a href="/manage_batches"><button type="button" class="admindashboard-btn btn-gold">Manage Batch</button></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admindashboard-col">
+                        <div class="admindashboard-card">
+                            <div class="admindashboard-card-header">
+                                <h2 class="admindashboard-gold-text">Semester Settings</h2>
+                            </div>
+                            <div class="admindashboard-card-body">
+                                <a href="/manage_semesters"><button type="button" class="admindashboard-btn btn-gold">Manage Semester</button></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Section and College details -->
+
+        <div class="admindashboard-row">
+            <div class="admindashboard-col">
+                <div class="admindashboard-card">
+                    <div class="admindashboard-card-header">
+                        <h2 class="admindashboard-gold-text">About College</h2>
+                    </div>
+                    <div class="admindashboard-card-body">
+                        <a href="/add-college-details"><button type="button" class="admindashboard-btn btn-gold">College Details</button></a>
+                    </div>
+                </div>
+            </div>
+
+
+        
+            <div class="admindashboard-col">
+                <div class="admindashboard-card">
+                    <div class="admindashboard-card-header">
+                        <h2 class="admindashboard-gold-text" >Notifications</h2>
+                    </div>
+                    <div class="admindashboard-card-body">
+                        <a href="/Admin_Notification_Control"><button type="button" class="admindashboard-btn btn-gold" >Edit Notifications</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- Logout Button -->
+    <button id="admindashboard-logout" class="logout-button" align="center">Logout</button>
+    </div>
+    <!-- JavaScript for Theme Toggle and Logout Button -->
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+    <script>
+        // Logout Button Functionality
+        document.getElementById('admindashboard-logout').addEventListener('click', function() {
+            window.history.back(); // Go back to the previous page
+        });
+    </script>
+</body>
+</html>

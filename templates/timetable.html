@@ -1,0 +1,185 @@
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Manager</title>
+    <link rel="stylesheet" href="{% static 'css/timetablepage.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body id="timetablepage">
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle-btn" class="theme-toggle-btn">
+        <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+    </button>
+
+
+    <div id="timetablepage-container-set-tt" class="container-set-tt">
+    <form method="POST" action="{% url 'set_time_table' day='DAY' period='PERIOD' classname='CLASSNAME' %}">
+        {% csrf_token %}
+        <h1 id="timetablepage-header" class="header">SET TIME-TABLE</h1>
+        
+        <!-- Class Select Dropdown -->
+        <label for="select">Select Class</label>
+        <select id="select" name="classname">
+            {% for class in classes %}
+            <option value="{{ class.ClassName }}">{{ class.ClassName }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Periods Select Dropdown -->
+        <label for="periods">Select Number of Periods</label>
+        <select id="periods" name="num_periods">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5" selected>5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+
+        <!-- Table for adding periods -->
+        <div id="timetablepage-container" class="container">
+            <div id="timetablepage-table-container" class="table-container center">
+                <h2>Set Timetable</h2>
+                <table class="table-set-tt" id="timetable">
+                    <thead>
+                        <tr id="header-row">
+                            <th>Day</th> <!-- Fixed 'Day' column -->
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+    </div>
+
+    <!-- View Timetable Table -->
+    <div id="timetable-container" class="container">
+        <div id="timetable-table-container" class="table-container center">
+            <h2>View Timetable</h2>
+            <table class="table" id="view-timetable">
+                <thead>
+                    <tr id="view-header-row">
+                        <th>Day</th> <!-- Fixed 'Day' column -->
+                    </tr>
+                </thead>
+                <tbody id="view-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Go Back Button -->
+<button id="go-back-btn" align="center">
+    <i class="fa fa-home"></i> Go To HomePage
+  </button>
+  
+  <script>
+    // Go Back Functionality
+    document.getElementById('go-back-btn').addEventListener('click', function() {
+        window.history.back(); // Go back to the previous page
+    });
+  </script>
+  
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+    <script>
+        const periodsSelect = document.getElementById('periods');
+        const classSelect = document.getElementById('select');
+        const tableHead = document.getElementById('header-row');
+        const tableBody = document.getElementById('table-body');
+        const viewTableBody = document.getElementById('view-table-body');
+
+        const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+        // Function to update both tables based on selected class and periods
+        function updateTables() {
+            const selectedClass = classSelect.value;
+            const numPeriods = periodsSelect.value;
+
+            // Clear previous content
+            tableHead.innerHTML = '<th>Day</th>';
+            tableBody.innerHTML = '';
+            viewTableBody.innerHTML = '';
+
+            // Add period columns (e.g., Period 1, Period 2, ...)
+            for (let period = 1; period <= numPeriods; period++) {
+                let periodHeaderCell = document.createElement('th');
+                periodHeaderCell.textContent = `Period ${period}`;
+                tableHead.appendChild(periodHeaderCell);
+            }
+
+            // Loop through days of the week
+            weekdays.forEach(day => {
+                let row = document.createElement('tr');
+                let dayCell = document.createElement('td');
+                dayCell.textContent = day;
+                row.appendChild(dayCell);
+
+                for (let period = 1; period <= numPeriods; period++) {
+                    // Set Timetable: Create selects for subject and teacher, and time fields
+                    let cell = document.createElement('td');
+                    cell.innerHTML = ` 
+                        <select name="subject-${day}-${period}">
+                            <option value="">Select Subject</option>
+                            {% for subject in subjects %}
+                            <option value="{{ subject.id }}">{{ subject.SubjectName }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="teacher-${day}-${period}">
+                            <option value="">Select Teacher</option>
+                            {% for teacher in teachers %}
+                            <option value="{{ teacher.id }}">{{ teacher.TeacherName }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="time" name="StartTime-${day}-${period}" />
+                        <input type="time" name="EndTime-${day}-${period}" />
+                    `;
+                    row.appendChild(cell);
+                }
+                tableBody.appendChild(row);
+
+                // View Timetable: Fetch existing timetable data
+                fetch(`/view_timetable/${selectedClass}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let viewRow = document.createElement('tr');
+                        let viewDayCell = document.createElement('td');
+                        viewDayCell.textContent = day;
+                        viewRow.appendChild(viewDayCell);
+
+                        for (let period = 1; period <= numPeriods; period++) {
+                            let periodData = data[day]?.[period] || { subjectName: '', teacherName: '' };
+                            let viewCell = document.createElement('td');
+                            if (periodData.subjectName && periodData.teacherName) {
+                                viewCell.textContent = `${periodData.subjectName} - ${periodData.teacherName}`;
+                            } else {
+                                viewCell.textContent = 'Not Assigned';
+                            }
+                            viewRow.appendChild(viewCell);
+                        }
+
+                        viewTableBody.appendChild(viewRow);
+                    });
+            });
+        }
+
+        // Event listeners for changes in class or periods
+        classSelect.addEventListener('change', updateTables);
+        periodsSelect.addEventListener('change', updateTables);
+
+        // Initial call to populate tables when page loads
+        updateTables();
+    </script>
+</body>
+</html>

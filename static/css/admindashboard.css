@@ -1,0 +1,191 @@
+/* Admin Dashboard Styles */
+
+/* Header Section */
+.admindashboard-header {
+    background-color: #3b82f6 !important;
+    padding: 20px !important;
+    text-align: center !important;
+    border-bottom: 2px solid #fbbf24 !important;
+}
+
+body.admindashboard.dark-theme .admindashboard-header {
+    background-color: #0f172a !important;
+    border-bottom-color: #f59e0b !important; /* Lighter gold for dark theme */
+}
+
+/* Container Styling */
+.admindashboard-container {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+}
+
+body.admindashboard.dark-theme .admindashboard-container {
+    background-color: #1e293b !important; /* Darker background for the container */
+    color: #515a67 !important; /* Lighter text color for readability */
+}
+
+/* Card Styling */
+.admindashboard-card {
+    background-color: #ffffff !important;
+    padding: 20px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 20px !important;
+}
+
+body.admindashboard.dark-theme .admindashboard-card {
+    background-color: #374151 !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Card Header Styling */
+.admindashboard-card-header {
+    background-color: #f3f4f6 !important;
+    padding: 10px !important;
+    border-radius: 10px 10px 0 0 !important;
+    text-align: center !important;
+    border-bottom: 2px solid #3b82f6 !important;
+}
+
+body.admindashboard.dark-theme .admindashboard-card-header {
+    background-color: #1f2937 !important;
+    border-bottom-color: #4b5563 !important; /* Subtle contrast for dark theme */
+}
+
+/* Card Body Styling */
+.admindashboard-card-body {
+    padding: 20px !important;
+}
+
+/* Layout (Flexbox) */
+.admindashboard-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 20px !important;
+}
+
+.admindashboard-col {
+    width: 48% !important;
+    box-sizing: border-box !important;
+}
+
+/* Button Styles */
+button {
+    border: none !important;
+    padding: 10px 20px !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    border-radius: 5px !important;
+    transition: background-color 0.3s, transform 0.3s ease !important;
+    background-color: #fbbf24 !important;
+    color: #2f2f2f !important;
+}
+
+button:hover {
+    background-color: #f59e0b !important;
+    transform: scale(1.05) !important;
+}
+
+body.admindashboard.dark-theme button {
+    background-color: #333 !important;
+    color: #f4c542 !important;
+}
+
+body.admindashboard.dark-theme button:hover {
+    background-color: #555 !important;
+}
+
+/* Gold Button Specific Styles */
+.btn-gold {
+    width: 100% !important;
+    box-shadow: 0 4px 8px rgba(255, 183, 36, 0.3) !important;
+}
+
+body.admindashboard.dark-theme .btn-gold {
+    background-color: #fbbf24 !important;
+    color: #2f2f2f !important;
+}
+
+.btn-gold:hover {
+    box-shadow: 0 6px 12px rgba(255, 158, 11, 0.6) !important;
+}
+
+/* Logout Button */
+#admindashboard-logout {
+    background-color: #ef4444 !important;
+    color: white !important;
+    width: 100% !important;
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3) !important;
+}
+
+#admindashboard-logout:hover {
+    background-color: #dc2626 !important;
+    box-shadow: 0 6px 12px rgba(220, 38, 38, 0.6) !important;
+    transform: scale(1.05) !important;
+}
+
+/* Form Container Styling */
+.admindashboard-form-container {
+    background-color: #ffffff !important;
+    padding: 20px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 20px !important;
+}
+
+body.admindashboard.dark-theme .admindashboard-form-container {
+    background-color: #374151 !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Gold Text Styling */
+.admindashboard-gold-text {
+    color: #fbbf24 !important;
+}
+
+body.admindashboard.dark-theme .admindashboard-gold-text {
+    color: #f59e0b !important;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 10px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+}
+
+body.admindashboard.dark-theme .theme-toggle-btn {
+    background-color: #1f2937 !important;
+}
+
+.theme-toggle-btn i {
+    font-size: 20px !important;
+}
+
+.theme-toggle-btn:hover {
+    background-color: #2563eb !important;
+}
+
+body.admindashboard.dark-theme .theme-toggle-btn:hover {
+    background-color: #4b5563 !important;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+    .admindashboard-col {
+        width: 100% !important;
+    }
+
+    .admindashboard-container {
+        width: 95% !important;
+    }
+}

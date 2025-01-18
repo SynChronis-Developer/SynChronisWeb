@@ -1,0 +1,102 @@
+/* Specific styles for main page */
+#mainpage {
+    background: #f0f8ff !important; /* Background color for main page */
+}
+
+.mainpage-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+.mainpage-container .welcome-text {
+    font-size: 98px !important;
+    font-weight: bold !important;
+    animation: fadeIn 2s ease-in-out, scaleUp 2s ease-in-out !important;
+}
+
+.mainpage-container .login-button {
+    margin-top: 20px !important;
+    background-color: #3c4e6a !important;
+    color: #ffffff !important;
+    padding: 12px 25px !important;
+    border: none !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    font-size: 18px !important;
+    animation: pulse 2s ease-in-out infinite !important;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.mainpage-container .login-button:hover {
+    background-color: #4a6d8d !important;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleUp {
+    0% {
+        transform: scale(0.5);
+    }
+
+    100% {
+        transform: scale(1.2);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Specific dark mode styles */
+body.dark #mainpage {
+    background: #2e2a47 !important;
+}
+
+body.dark .mainpage-container .welcome-text {
+    color: #ffd700 !important; /* Gold color for dark mode */
+}
+
+body.dark .mainpage-container .login-button {
+    background-color: #2b2b2b !important;
+    color: #ffd700 !important;
+}
+
+body.dark .mainpage-container .login-button:hover {
+    background-color: #ffd700 !important;
+    color: #2e2a47 !important;
+}
+
+/* Specific theme toggle button styles */
+body.dark .theme-toggle-btn {
+    background-color: transparent !important;
+    color: #f6fc48 !important;
+    border: 2px solid #e2f94a !important;
+}
+
+body.dark .theme-toggle-btn:hover {
+    background-color: #f6f340f1 !important;
+    color: #2e2a47 !important;
+    border-color: #ffd1dc !important;
+}

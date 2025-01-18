@@ -1,0 +1,200 @@
+/* Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom right, #1e1e2f, #25253c);
+    color: #f0f0f0;
+    overflow-x: hidden;
+    height: auto;
+}
+
+/* Ensure the html and body fill the entire height of the viewport */
+html, body {
+    height: auto;
+}
+
+/* Flexbox wrapper to manage layout */
+.main-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Header Section */
+.header {
+    background: #2c2c3c;
+    padding: 20px 40px;
+    text-align: center;
+    border-bottom: 4px solid #ffd700;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.header .gold-text {
+    font-size: 2.8rem;
+    color: #f2ff00;
+    text-shadow: 0 0 10px #ffd700, 0 0 20px #ffae00;
+    animation: glow 2s infinite;
+}
+
+/* Keyframe Animation */
+@keyframes glow {
+    0%, 100% {
+        text-shadow: 0 0 10px #ffd700, 0 0 15px #ffae00;
+    }
+    50% {
+        text-shadow: 0 0 15px #ffd700, 0 0 20px #ffae00;
+    }
+}
+
+/* Container Section */
+.container {
+    background: #2e2e42;
+    padding: 30px;
+    margin: 40px auto;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 1200px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    min-height: calc(100vh - 120px); /* Ensure content fills the remaining height */
+    overflow-y: auto; /* Allow scrolling if content exceeds */
+}
+
+/* Container title */
+.container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    text-transform: uppercase;
+    color: #ffd700;
+}
+
+/* Form Styles */
+form {
+    margin-bottom: 40px;
+}
+
+form label {
+    font-size: 1rem;
+    color: #ddd;
+    margin-bottom: 5px;
+    display: block;
+}
+
+form input, form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    background: #3c3c50;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+form input:focus, form select:focus {
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 5px #ffd700;
+}
+
+form button {
+    background: #ffd700;
+    color: #1e1e2f;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+form button:hover {
+    background: #ffae00;
+    transform: scale(1.05);
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table thead {
+    background: #3c3c50;
+    color: #ffd700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+}
+
+table th, table td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #444;
+}
+
+table tbody tr {
+    transition: background 0.3s ease;
+}
+
+table tbody tr:hover {
+    background: #3c3c50;
+}
+
+table .btn-edit, table .btn-delete {
+    background: #ffd700;
+    color: #1e1e2f;
+    border: none;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+table .btn-edit:hover {
+    background: #ffae00;
+}
+
+table .btn-delete:hover {
+    background: #e74c3c;
+    color: #fff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header .gold-text {
+        font-size: 2rem;
+    }
+
+    .container {
+        width: 95%;
+    }
+
+    table th, table td {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    form input, form select {
+        font-size: 0.9rem;
+    }
+
+    form button {
+        font-size: 1rem;
+    }
+}
+
+/* Footer Styles */
+footer {
+    background: #2c2c3c;
+    color: #f0f0f0;
+    text-align: center;
+    padding: 20px;
+    border-top: 4px solid #ffd700;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}

@@ -1,0 +1,11 @@
+body{
+    background-image:url("location.jpg.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.form-container {
+    width: 300px;
+    margin:0 auto;
+    padding: 30px;
+    border:3px solid coral;
+}

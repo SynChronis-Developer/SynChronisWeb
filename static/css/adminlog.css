@@ -1,0 +1,142 @@
+/* Light Theme */
+body.adminlog.light {
+  background: #f0f8ff !important;
+  color: #2e3b4e !important;
+}
+
+/* Dark Theme */
+body.adminlog.dark {
+  background: #2e2a47 !important;
+  color: #ffffff !important;
+}
+
+/* Geometric Background Circles for Admin Log Page */
+#adminlog-circle-top-left,
+#adminlog-circle-bottom-left {
+  content: "" !important;
+  position: absolute !important;
+  z-index: -1 !important;
+  opacity: 0.5 !important;
+  border-radius: 50% !important;
+}
+
+#adminlog-circle-top-left {
+  width: 300px !important;
+  height: 300px !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  top: 20% !important;
+  left: 5% !important;
+  box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+#adminlog-circle-bottom-left {
+  width: 400px !important;
+  height: 400px !important;
+  background-color: rgba(0, 0, 0, 0.35) !important;
+  bottom: 5% !important;
+  left: 5% !important;
+  box-shadow: 0px 0px 50px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Theme Toggle Button */
+#adminlog-theme-toggle-btn {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 20px !important;
+  cursor: pointer !important;
+  color: currentColor !important;
+  z-index: 1000 !important;
+  transition: transform 0.3s !important;
+}
+
+#adminlog-theme-toggle-btn:hover {
+  transform: scale(1.2) !important;
+}
+
+/* Login Form Container */
+#adminlog-container {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100vh !important;
+}
+
+#adminlog-login-form {
+  background: rgba(255, 255, 255, 0.9) !important;
+  padding: 30px 40px !important;
+  border-radius: 8px !important;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1) !important;
+  width: 300px !important;
+  text-align: center !important;
+}
+
+#adminlog-login-form input,
+#adminlog-login-form button {
+  width: 100% !important;
+  padding: 12px !important;
+  margin-bottom: 15px !important;
+  border-radius: 5px !important;
+  border: 1px solid #ccc !important;
+  font-size: 16px !important;
+}
+
+#adminlog-login-form input {
+  background-color: #f8f8f8 !important;
+}
+
+#adminlog-login-form button {
+  background-color: #3c4e6a !important;
+  color: white !important;
+  cursor: pointer !important;
+  transition: background-color 0.3s !important;
+}
+
+#adminlog-login-form button:hover {
+  background-color: #4a6d8d !important;
+}
+
+#adminlog-reset {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+#adminlog-reset:hover {
+  background-color: #e60000 !important;
+}
+
+/* Dark Mode Specific Styles */
+body.adminlog.dark #adminlog-circle-top-left {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.4) !important;
+}
+
+body.adminlog.dark #adminlog-circle-bottom-left {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0px 0px 60px rgba(255, 255, 255, 0.6) !important;
+}
+
+body.adminlog.dark #adminlog-theme-toggle-btn {
+  background-color: transparent !important;
+  color: #f6fc48 !important;
+  border: 2px solid #e2f94a !important;
+}
+
+body.adminlog.dark #adminlog-theme-toggle-btn:hover {
+  background-color: #f6f340f1 !important;
+  color: #2e2a47 !important;
+  border-color: #ffd1dc !important;
+}
+
+body.adminlog.dark #adminlog-login-form {
+  background: rgba(0, 0, 0, 0.7) !important;
+  color: #ffffff !important;
+}
+
+body.adminlog.dark #adminlog-login-form input {
+  background-color: #444 !important;
+  border-color: #555 !important;
+  color: white !important;
+}

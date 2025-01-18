@@ -1,0 +1,236 @@
+/* Base and Reset Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light Theme */
+body.light {
+    background-color: #f0f0f5;
+    color: #2e2e42;
+}
+
+/* Dark Theme */
+body.dark {
+    background-color: #1e1e2f;
+    color: #f0f0f0;
+}
+
+/*theme button*/
+
+body.viewteacher.dark .theme-toggle-btn {
+    background-color: #ff5722;
+  }
+  
+  .theme-toggle-btn i {
+    font-size: 22px;
+  }
+  
+  .theme-toggle-btn:hover {
+    background-color: #ff5722;
+  }
+  
+  body.viewteacher.dark .theme-toggle-btn:hover {
+    background-color: #e64a19;
+  }
+/* Header Styles */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    padding: 10px;
+    border-bottom: 3px solid;
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+body.light .header {
+    color: #ffd700;
+    border-color: #ffd700;
+    text-shadow: 0 0 10px #ffd700, 0 0 20px #ffae00;
+}
+
+body.dark .header {
+    color: #fbbf24;
+    border-color: #fbbf24;
+    text-shadow: 0 0 10px #fbbf24, 0 0 20px #ffb700;
+}
+
+/* Table Container */
+.table-container, .container-set-tt {
+    margin-top: 20px;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Table Styles */
+.table, .table-set-tt {
+    width: 100%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: inherit;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+th, td {
+    padding: 12px 20px;
+    text-align: center;
+    border: 1px solid;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.light th {
+    background-color: #ffd700;
+    color: #2e2e42;
+    border-color: #444;
+}
+
+body.dark th {
+    background-color: #fbbf24;
+    color: #2e2e42;
+    border-color: #555;
+}
+
+body.light td {
+    color: #2e2e42;
+    border-color: #444;
+}
+
+body.dark td {
+    color: #f0f0f0;
+    border-color: #555;
+}
+
+td:hover {
+    background-color: #3c3c50;
+    transform: scale(1.05);
+}
+
+/* Button Styles */
+button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border: 2px solid;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    width: 100%;
+    margin-top: 20px;
+}
+
+body.light button {
+    background-color: #ffd700;
+    color: #2e2e42;
+    border-color: #ffd700;
+}
+
+body.dark button {
+    background-color: #fbbf24;
+    color: #2e2e42;
+    border-color: #fbbf24;
+}
+
+button:hover {
+    background-color: #fbbf24;
+    color: #2e2e42;
+}
+
+/* Form Styles */
+label {
+    font-size: 18px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+body.light label {
+    color: #ffd700;
+}
+
+body.dark label {
+    color: #fbbf24;
+}
+
+select {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 2px solid;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body.light select {
+    background-color: #ffd700;
+    color: #2e2e42;
+    border-color: #ffd700;
+}
+
+body.dark select {
+    background-color: #fbbf24;
+    color: #2e2e42;
+    border-color: #fbbf24;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+tr.new-row {
+    animation: fadeIn 0.6s ease forwards;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    th, td {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    button {
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+
+    select {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    th, td {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    button {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+
+    select {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+}

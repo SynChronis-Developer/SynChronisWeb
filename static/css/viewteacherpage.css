@@ -1,0 +1,182 @@
+/* Global Styling */
+body.viewteacher {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.viewteacher.dark {
+  background-color: #1b1b1b;
+  color: #f1f1f1;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #ff9800;
+  color: #fff;
+  border: none;
+  padding: 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1000;
+  transition: background-color 0.3s;
+}
+
+body.viewteacher.dark .theme-toggle-btn {
+  background-color: #ff5722;
+}
+
+.theme-toggle-btn i {
+  font-size: 22px;
+}
+
+.theme-toggle-btn:hover {
+  background-color: #ff5722;
+}
+
+body.viewteacher.dark .theme-toggle-btn:hover {
+  background-color: #e64a19;
+}
+
+/* Header Styling */
+header {
+  background: linear-gradient(90deg, #4caf50, #81c784);
+  padding: 30px;
+  text-align: center;
+  color: #fff;
+  border-bottom: 5px solid #ff9800;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+body.viewteacher.dark header {
+  background: linear-gradient(90deg, #2e7d32, #388e3c);
+  border-bottom: 5px solid #e64a19;
+}
+
+/* Main Table Styling */
+#viewteacher-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px auto;
+  max-width: 90%;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+body.viewteacher.dark #viewteacher-table {
+  background: #333;
+}
+
+#viewteacher-table thead {
+  background: #4caf50;
+  color: #fff;
+}
+
+body.viewteacher.dark #viewteacher-table thead {
+  background: #2e7d32;
+  color: #f1f1f1;
+}
+
+#viewteacher-table th, #viewteacher-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  color: #333;
+}
+
+body.viewteacher.dark #viewteacher-table th, 
+body.viewteacher.dark #viewteacher-table td {
+  border-color: #444;
+  color: #f1f1f1;
+}
+
+#viewteacher-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+body.viewteacher.dark #viewteacher-table tr:hover {
+  background-color: #444;
+}
+
+/* Button Styling */
+button {
+  font-size: 16px;
+  padding: 12px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.verify-button {
+  background: #4caf50;
+  color: #fff;
+}
+
+.reject-button {
+  background: #f44336;
+  color: #fff;
+}
+
+.go-back-button {
+  background: #2196f3;
+  color: #fff;
+}
+
+button:hover {
+  transform: translateY(-3px);
+}
+
+.verify-button:hover {
+  background: #388e3c;
+}
+
+.reject-button:hover {
+  background: #d32f2f;
+}
+
+.go-back-button:hover {
+  background: #1976d2;
+}
+
+body.viewteacher.dark .verify-button {
+  background: #388e3c;
+}
+
+body.viewteacher.dark .reject-button {
+  background: #c62828;
+}
+
+body.viewteacher.dark .go-back-button {
+  background: #1565c0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #viewteacher-table, #viewteacher-table thead, #viewteacher-table tbody, #viewteacher-table th, #viewteacher-table td, #viewteacher-table tr {
+      display: block;
+      width: 100%;
+  }
+
+  #viewteacher-table th, #viewteacher-table td {
+      text-align: right;
+      padding-left: 50%;
+      position: relative;
+  }
+
+  #viewteacher-table th::before, #viewteacher-table td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 0;
+      width: 50%;
+      padding-left: 15px;
+      font-weight: bold;
+      text-align: left;
+  }
+}

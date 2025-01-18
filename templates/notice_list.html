@@ -1,0 +1,25 @@
+<!-- notice_list.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Notices</h1>
+    {% if user.is_teacher %}
+        <a href="{% url 'create_notice' %}" class="btn btn-primary">Create New Notice</a>
+    {% endif %}
+    <ul>
+        {% for notice in notices %}
+            <li>
+                <h3>{{ notice.Notice_name }}</h3>
+                <p>{{ notice.Notice_Content }}</p>
+                <p><small>Posted on: {{ notice.Date }}</small></p>
+
+                {% if user.is_teacher %}
+                    <a href="{% url 'update_notice' notice.pk %}" class="btn btn-secondary">Update</a>
+                    <a href="{% url 'delete_notice' notice.pk %}" class="btn btn-danger">Delete</a>
+                {% endif %}
+            </li>
+        {% empty %}
+            <p>No notices available.</p>
+        {% endfor %}
+    </ul>
+{% endblock %}

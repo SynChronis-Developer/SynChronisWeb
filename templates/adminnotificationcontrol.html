@@ -1,0 +1,61 @@
+{% load static %}
+<html>
+<head>
+  <title>Notifications</title>
+  <link rel="stylesheet" href="{% static 'css/adminnotificationcontrol.css' %}">
+</head>
+<body>
+<div class="content">
+  <div class="container">
+    <h1>Notifications</h1>
+    <div class="notification-split">
+      <!-- Teacher Notifications Section -->
+      <div class="notification-list teacher-notifications">
+        <h2>Teacher Notifications</h2>
+        <div class="notification-actions">
+          <!-- Link to Teacher Add Notice Page -->
+          <a href="{% url 'add_teacher_notice' %}">
+            <button id="add-teacher-notification-btn">Add New Teacher Notification</button>
+          </a>
+        </div>
+        <ul id="teacher-notification-list">
+          <!-- Teacher notifications will be listed here -->
+          {% for notice in teacher_notices %}
+            <li>
+              <h3>{{ notice.NoticeName }}</h3>
+              <p>{{ notice.NoticeContent }}</p>
+              {% if notice.FileAttachment %}
+                <a href="{{ notice.FileAttachment.url }}" target="_blank">Download Attachment</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Student Notifications Section -->
+      <div class="notification-list student-notifications">
+        <h2>Student Notifications</h2>
+        <div class="notification-actions">
+          <!-- Link to Student Add Notice Page -->
+          <a href="{% url 'add_student_notice' %}">
+            <button id="add-student-notification-btn">Add New Student Notification</button>
+          </a>
+        </div>
+        <ul id="student-notification-list">
+          <!-- Student notifications will be listed here -->
+          {% for notice in student_notices %}
+            <li>
+              <h3>{{ notice.Notice_name }}</h3>
+              <p>{{ notice.Notice_Content }}</p>
+              {% if notice.File_Attachment %}
+                <a href="{{ notice.File_Attachment.url }}" target="_blank">Download Attachment</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

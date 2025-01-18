@@ -1,0 +1,68 @@
+{% load static %}
+<html>
+<head>
+    <title>View Teacher</title>
+    <link rel="stylesheet" href="{% static 'css/viewteacherpage.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body class="viewteacher">
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle-btn" class="theme-toggle-btn">
+        <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+    </button>
+
+    <header>
+        <h1>View Teacher</h1>
+    </header>
+
+    <main>
+        <table id="viewteacher-table">            
+            <thead id="viewteacher-thead">
+                <tr id="viewteacher-tr"> 
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Subject</th>
+                    <th>Gender</th>
+                    <th>Department</th>
+                    <th>Phone Number</th>
+                    <th>Email</th>
+                    <th>Qualification</th>
+                    <th colspan="3">Status</th>
+                </tr>
+            </thead>
+            <tbody id="viewteacher-tbody">
+            {% for i in te %}
+            <tr>
+                <td>{{ i.id }}</td>
+                <td>{{ i.TeacherName }}</td>
+                <td>{{ i.SubjectName }}</td>
+                <td>{{ i.Gender }}</td>
+                <td>{{ i.Department }}</td>
+                <td>{{ i.Phone_number }}</td>
+                <td>{{ i.Email }}</td>
+                <td>{{ i.Qualification }}</td>
+                <td>{{ i.LOGIN.status }}</td>
+                <td>
+                    <a href="/accept_teacher/{{ i.id }}"><button id="viewteacher-accept" class="verify-button">Accept</button></a>
+                    <a href="/reject_teacher/{{ i.id }}"><button id="viewteacher-reject" class="reject-button">Reject</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <h3 align="center">
+            <a href="javascript:history.go(-1)"><button type="button" id="viewteacher-go-back" class="go-back-button">Back To Home
+                <i class="fa fa-home"></i> 
+            </button></a>
+        </h3>
+    </main>
+
+    <footer>
+        <!-- Footer content goes here -->
+    </footer>
+
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+</body>
+</html>

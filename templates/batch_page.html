@@ -1,0 +1,177 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Batches</title>
+    <link rel="stylesheet" href="{% static 'css/batchpage.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1 class="gold-text">Batch Management</h1>
+    </div>
+
+    <div class="container">
+        <h2>Manage Batches</h2>
+
+        <!-- Form to Add/Edit Batch -->
+        <form id="batchForm">
+            <input type="hidden" id="batchId" name="batchId" value="">
+        
+            <label for="className">Select Class</label>
+            <select id="className" name="ClassName" required>
+                <option value="" disabled selected>Select a class</option>
+                <!-- Dynamically populate class options via Django -->
+                {% for class in classes %}
+                <option value="{{ class.id }}">{{ class.ClassName }}</option>
+                {% endfor %}
+            </select>
+        
+            <label for="batchName">Batch Name</label>
+            <input type="text" id="batchName" name="BatchName" placeholder="Enter Batch Name" required>
+        
+            <label for="batchYear">Batch Year</label>
+            <input type="text" id="batchYear" name="BatchYear" placeholder="Enter Batch Year" required>
+        
+            <label for="batchStartYear">Start Year</label>
+            <input type="number" id="batchStartYear" name="BatchStartYear" placeholder="Enter Start Year" required>
+        
+            <label for="batchEndYear">End Year</label>
+            <input type="number" id="batchEndYear" name="BatchEndYear" placeholder="Enter End Year" required>
+        
+            <button type="submit">Save Batch</button>
+        </form>
+        
+
+        <!-- Display Existing Batches -->
+        <h3>Existing Batches</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Batch Name</th>
+                    <th>Batch Year</th>
+                    <th>Start Year</th>
+                    <th>End Year</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="batchTableBody">
+                {% for batch in batches %}
+                    <tr data-batch-id="{{ batch.id }}">
+                        <td>{{ batch.BatchName }}</td>
+                        <td>{{ batch.BatchYear }}</td>
+                        <td>{{ batch.BatchStartYear }}</td>
+                        <td>{{ batch.BatchEndYear }}</td>
+                        <td>
+                            <button class="btn-edit">Edit</button>
+                            <button class="btn-delete">Delete</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // Edit batch functionality
+            $('.btn-edit').click(function () {
+                var row = $(this).closest('tr');
+                var batchId = row.data('batch-id');
+                var batchName = row.find('td:nth-child(1)').text();
+                var batchYear = row.find('td:nth-child(2)').text();
+                var batchStartYear = row.find('td:nth-child(3)').text();
+                var batchEndYear = row.find('td:nth-child(4)').text();
+
+                // Fill the form with batch data
+                $('#batchId').val(batchId);
+                $('#batchName').val(batchName);
+                $('#batchYear').val(batchYear);
+                $('#batchStartYear').val(batchStartYear);
+                $('#batchEndYear').val(batchEndYear);
+
+                // Change the button text to 'Update Batch'
+                $('button[type="submit"]').text('Update Batch');
+            });
+
+            // Delete batch functionality
+            $('.btn-delete').click(function () {
+                var row = $(this).closest('tr');
+                var batchId = row.data('batch-id');
+
+                if (confirm('Are you sure you want to delete this batch?')) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "delete_batch" %}',
+                        data: {
+                            'batchId': batchId,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                row.remove();
+                                alert('Batch deleted successfully!');
+                            } else {
+                                alert('Failed to delete batch.');
+                            }
+                        },
+                        error: function () {
+                            alert('Error while deleting batch.');
+                        }
+                    });
+                }
+            });
+
+            // Handle form submission for adding/updating batches
+            $('#batchForm').submit(function (event) {
+                event.preventDefault();  // Prevent normal form submission
+
+                var batchId = $('#batchId').val();
+                var actionUrl = batchId ? '{% url "update_batch" %}' : '{% url "create_batch" %}';
+
+                $.ajax({
+                    type: 'POST',
+                    url: actionUrl,
+                    data: {
+                        'batchId': batchId,
+                        'BatchName': $('#batchName').val(),
+                        'BatchYear': $('#batchYear').val(),
+                        'BatchStartYear': $('#batchStartYear').val(),
+                        'BatchEndYear': $('#batchEndYear').val(),
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            if (batchId) {
+                                // Update the row in the table
+                                var row = $('tr[data-batch-id="' + batchId + '"]');
+                                row.find('td:nth-child(1)').text(response.batch_name);
+                                row.find('td:nth-child(2)').text(response.batch_year);
+                                row.find('td:nth-child(3)').text(response.batch_start_year);
+                                row.find('td:nth-child(4)').text(response.batch_end_year);
+                            } else {
+                                // Append the new batch to the table
+                                $('#batchTableBody').append('<tr data-batch-id="' + response.batch_id + '"><td>' + response.batch_name + '</td><td>' + response.batch_year + '</td><td>' + response.batch_start_year + '</td><td>' + response.batch_end_year + '</td><td><button class="btn-edit">Edit</button><button class="btn-delete">Delete</button></td></tr>');
+                            }
+                            alert('Batch saved successfully!');
+                            $('#batchForm')[0].reset();  // Clear the form
+                            $('button[type="submit"]').text('Add Batch');  // Reset button text
+                        } else {
+                            alert('Failed to save batch: ' + JSON.stringify(response.errors));
+                        }
+                    },
+                    error: function () {
+                        alert('Error while saving batch.');
+                    }
+                });
+            });
+        });
+    </script>
+    <!-- Footer Section -->
+<footer>
+    <p>&copy; Batch Management. All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>

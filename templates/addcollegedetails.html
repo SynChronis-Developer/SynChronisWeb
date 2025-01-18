@@ -1,0 +1,278 @@
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add College Details</title>
+    <link rel="stylesheet" href="{% static 'css/addcollegedetail.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body id="collegepage">
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle-btn" class="theme-toggle-btn">
+        <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+    </button>
+
+    <div class="container">
+        <h1>About College</h1>
+
+        <!-- Redirect to College Main Site -->
+        <div class="redirect-section">
+            <a href="https://cascheemeni.ihrd.ac.in/" target="_blank" class="redirect-button">Visit College Main Site</a>
+        </div>
+
+        <!-- Add College Details Form -->
+        <div class="form-section">
+            <h2>Add College Details</h2>
+            <form id="add-college-details-form">
+                {% csrf_token %}
+                <label for="college-name">College Name</label>
+                <input type="text" id="college-name" name="college_name" required>
+                <label for="college-email">Email</label>
+                <input type="email" id="college-email" name="college_email" required>
+                <label for="college-phone">Phone Number</label>
+                <input type="tel" id="college-phone" name="college_phone" required>
+                <label for="principal-name">Principal Name</label>
+                <input type="text" id="principal-name" name="principal_name" required>
+                <label for="principal-contact">Principal Contact</label>
+                <input type="tel" id="principal-contact" name="principal_contact" required>
+                <button type="submit">Add College Details</button>
+            </form>
+        </div>
+
+        <!-- Add Subjects Form -->
+        <div class="form-section">
+            <h2>Add Subjects</h2>
+            <form id="add-subject-form">
+                {% csrf_token %}
+                <label for="subject-name">Subject Name</label>
+                <input type="text" id="subject-name" name="subject_name" required>
+
+                <!-- Department Dropdown -->
+                <label for="department">Department</label>
+                <select id="department" name="department_id" required>
+                    {% for department in departments %}
+                        <option value="{{ department.id }}">{{ department.department_name }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Course Dropdown -->
+                <label for="course">Course</label>
+                <select id="course" name="course_id" required>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.course_name }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- Semester Dropdown -->
+                <label for="semester">Semester</label>
+                <select id="semester" name="semester_id" required>
+                    {% for semester in semesters %}
+                        <option value="{{ semester.id }}">{{ semester.semester_name }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Add Subject</button>
+            </form>
+        </div>
+
+        <!-- Add Departments and Courses Form -->
+        <div class="form-section">
+            <h2>Add Departments and Courses</h2>
+            <form id="add-department-course-form">
+                {% csrf_token %}
+                <label for="department-name">Department Name</label>
+                <input type="text" id="department-name" name="department_name" required>
+                <label for="course-name">Course Name</label>
+                <input type="text" id="course-name" name="course_name" required>
+                <button type="submit">Add Department and Course</button>
+            </form>
+        </div>
+
+        <!-- View Subjects Table -->
+        <div class="table-section">
+            <h2>Subjects</h2>
+            <table id="subjects-table">
+                <thead>
+                    <tr>
+                        <th>Subject ID</th>
+                        <th>Subject Code</th>
+                        <th>Subject Name</th>
+                        <th>Department</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Year of Syllabus</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject.id }}</td>
+                        <td>{{ subject.SubjectCode }}</td>
+                        <td>{{ subject.SubjectName }}</td>
+                        <td>{{ subject.Department }}</td>
+                        <td>{{ subject.Course }}</td>
+                        <td>{{ subject.Semester }}</td>
+                        <td>{{ subject.Year_of_Syllabus }}</td>
+                        <td>
+                            <button class="delete-btn" data-id="{{ subject.id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- View Departments and Courses Table -->
+        <div class="table-section">
+            <h2>Departments and Courses</h2>
+            <table id="departments-courses-table">
+                <thead>
+                    <tr>
+                        <th>Department ID</th>
+                        <th>Department Name</th>
+                        <th>Course Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for department_course in department_courses %}
+                    <tr>
+                        <td>{{ department_course.id }}</td>
+                        <td>{{ department_course.Department}}</th>
+                        <td>{{ department_course.CourseName}}</th>
+                        <td>
+                            <button class="delete-btn" data-id="{{ department_course.id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+    <script>
+        // JavaScript for handling form submissions and dynamically updating tables
+        document.getElementById('add-college-details-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const collegeName = document.getElementById('college-name').value;
+            const collegeEmail = document.getElementById('college-email').value;
+            const collegePhone = document.getElementById('college-phone').value;
+            const principalName = document.getElementById('principal-name').value;
+            const principalContact = document.getElementById('principal-contact').value;
+
+            // AJAX call to add the college details to the database
+            fetch('/add_college_details/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ 
+                    college_name: collegeName,
+                    college_email: collegeEmail,
+                    college_phone: collegePhone,
+                    principal_name: principalName,
+                    principal_contact: principalContact
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('College details added successfully!');
+                    document.getElementById('add-college-details-form').reset();
+                }
+            });
+        });
+
+        document.getElementById('add-subject-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const subjectName = document.getElementById('subject-name').value;
+
+            // AJAX call to add the subject to the database
+            fetch('/add_subject/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ subject_name: subjectName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add the new subject to the table
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${data.subject_id}</td>
+                        <td>${subjectName}</td>
+                        <td><button class="delete-btn" data-id="${data.subject_id}">Delete</button></td>
+                    `;
+                    document.querySelector('#subjects-table tbody').appendChild(newRow);
+                    document.getElementById('subject-name').value = '';
+                }
+            });
+        });
+
+        document.getElementById('add-department-course-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const departmentName = document.getElementById('department-name').value;
+            const courseName = document.getElementById('course-name').value;
+
+            // AJAX call to add the department and course to the database
+            fetch('/add_department_course/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ department_name: departmentName, course_name: courseName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add the new department and course to the table
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${data.department_id}</td>
+                        <td>${departmentName}</td>
+                        <td>${courseName}</td>
+                        <td><button class="delete-btn" data-id="${data.department_id}">Delete</button></td>
+                    `;
+                    document.querySelector('#departments-courses-table tbody').appendChild(newRow);
+                    document.getElementById('department-name').value = '';
+                    document.getElementById('course-name').value = '';
+                }
+            });
+        });
+
+        // Add event listeners for delete buttons in the tables (delegation pattern)
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('delete-btn')) {
+                const id = event.target.getAttribute('data-id');
+                const row = event.target.closest('tr');
+                
+                // AJAX call to delete the subject or department/course
+                fetch(`/delete_entry/${id}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the row from the table
+                        row.remove();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

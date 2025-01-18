@@ -1,0 +1,12 @@
+<!-- update_notice.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Update Notice</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Update Notice</button>
+    </form>
+{% endblock %}

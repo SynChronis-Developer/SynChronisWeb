@@ -1,0 +1,160 @@
+{% load static%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Notices</title>
+    <link rel="stylesheet" href="{% static 'css/addnotices.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Teacher Notices</h1>
+
+    <h2>Create a New Teacher Notice</h2>
+    <form id="teacherNoticeForm" enctype="multipart/form-data">
+        <input type="hidden" id="teacherNoticeId" name="noticeId" value="">
+
+        <label for="noticeName">Notice Name</label>
+        <input type="text" id="noticeName" name="NoticeName" placeholder="Enter Notice Name" required>
+
+        <label for="noticeContent">Notice Content</label>
+        <textarea id="noticeContent" name="NoticeContent" placeholder="Enter Notice Content" required></textarea>
+
+        <label for="department">Select Department</label>
+        <select id="department" name="Department" required>
+            {% for department in departments %}
+                <option value="{{ department.id }}">{{ department.ClassName }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="fileAttachment">Attach File</label>
+        <input type="file" id="fileAttachment" name="FileAttachment" accept="application/pdf, image/*">
+
+        <button type="submit">Save Notice</button>
+    </form>
+
+    <h2>Existing Teacher Notices</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Notice Name</th>
+                <th>Notice Content</th>
+                <th>Department</th>
+                <th>Attachment</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="teacherNoticeTableBody">
+            {% for notice in notices %}
+                <tr data-notice-id="{{ notice.id }}">
+                    <td>{{ notice.NoticeName }}</td>
+                    <td>{{ notice.NoticeContent }}</td>
+                    <td>{{ notice.Department.ClassName }}</td>
+                    <td>
+                        {% if notice.FileAttachment %}
+                            <a href="{{ notice.FileAttachment.url }}" target="_blank">Download</a>
+                        {% else %}
+                            No Attachment
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="edit-button">Edit</button>
+                        <button class="delete-button">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            // Edit notice functionality
+            $('.edit-button').click(function () {
+                var row = $(this).closest('tr');
+                var noticeId = row.data('notice-id');
+                var noticeName = row.find('td:nth-child(1)').text();
+                var noticeContent = row.find('td:nth-child(2)').text();
+                var department = row.find('td:nth-child(3)').text();
+
+                // Fill the form with notice data
+                $('#teacherNoticeId').val(noticeId);
+                $('#noticeName').val(noticeName);
+                $('#noticeContent').val(noticeContent);
+                $('#department').val(department);  // Ensure this is set dynamically if needed
+
+                // Change the button text to 'Update Notice'
+                $('button[type="submit"]').text('Update Notice');
+            });
+
+            // Delete notice functionality
+            $('.delete-button').click(function () {
+                var row = $(this).closest('tr');
+                var noticeId = row.data('notice-id');
+
+                if (confirm('Are you sure you want to delete this notice?')) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "delete_teacher_notice" %}',
+                        data: {
+                            'noticeId': noticeId,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                row.remove();
+                                alert('Notice deleted successfully!');
+                            } else {
+                                alert('Failed to delete notice.');
+                            }
+                        },
+                        error: function () {
+                            alert('Error while deleting notice.');
+                        }
+                    });
+                }
+            });
+
+            // Handle form submission for adding/updating notices
+            $('#teacherNoticeForm').submit(function (event) {
+                event.preventDefault();  // Prevent normal form submission
+
+                var noticeId = $('#teacherNoticeId').val();
+                var actionUrl = noticeId ? '{% url "update_teacher_notice" %}' : '{% url "create_teacher_notice" %}';
+
+                var formData = new FormData(this); // Include the file data
+
+                $.ajax({
+                    type: 'POST',
+                    url: actionUrl,
+                    data: formData,
+                    processData: false,  // Don't process the data
+                    contentType: false,  // Don't set content type
+                    success: function (response) {
+                        if (response.success) {
+                            if (noticeId) {
+                                // Update the row in the table
+                                var row = $('tr[data-notice-id="' + noticeId + '"]');
+                                row.find('td:nth-child(1)').text(response.notice_name);
+                                row.find('td:nth-child(2)').text(response.notice_content);
+                                row.find('td:nth-child(3)').text(response.department);
+                                row.find('td:nth-child(4)').html(response.file_attachment ? '<a href="' + response.file_attachment_url + '" target="_blank">Download</a>' : 'No Attachment');
+                            } else {
+                                // Append the new notice to the table
+                                $('#teacherNoticeTableBody').append('<tr data-notice-id="' + response.notice_id + '"><td>' + response.notice_name + '</td><td>' + response.notice_content + '</td><td>' + response.department + '</td><td><a href="' + response.file_attachment_url + '" target="_blank">Download</a></td><td><button class="edit-button">Edit</button><button class="delete-button">Delete</button></td></tr>');
+                            }
+                            alert('Notice saved successfully!');
+                            $('#teacherNoticeForm')[0].reset();  // Clear the form
+                            $('button[type="submit"]').text('Create Notice');  // Reset button text
+                        } else {
+                            alert('Failed to save notice: ' + JSON.stringify(response.errors));
+                        }
+                    },
+                    error: function () {
+                        alert('Error while saving notice.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

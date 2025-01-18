@@ -1,0 +1,46 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    {% comment %} <link rel="stylesheet" href="{% static 'css/mainpage.css' %}"> {% endcomment %}
+    <!-- Font Awesome for icons (sun and moon icons for theme toggle) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body class="mainpage">
+
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle-btn" class="theme-toggle-btn">
+        <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+    </button>
+
+      <!-- Geometric Background Circles -->
+    <div id="mainpage-circle-top-left" class="circle-top-left"></div>
+    <div id="mainpage-circle-bottom-left" class="circle-bottom-left"></div>
+
+    {% block content %}
+    <div id="mainpage" class="mainpage-container">
+       
+    
+        <div class="welcome-page">
+            <div class="welcome-text">
+                <span>SynChronis</span>
+            </div>
+            <a href="Login_page/"><button type="button" class="login-button">Get Started</button></a>
+        </div>
+    </div>
+    {% endblock %}
+    <!-- JavaScript for Theme Toggle -->
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+
+</body>
+
+</html>
