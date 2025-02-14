@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-22axko%@7gorf$dfcb9+g0eg!wog53n(!#sk%8oil8ua*4)o&j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
 
 
 # Application definition
@@ -39,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'SynChronisApp',
+    'rest_framework',
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'SynChronis.urls'
@@ -107,7 +111,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
+
+
 
 USE_I18N = True
 
@@ -120,10 +126,57 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'  # URL for accessing media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Path to store media files on disk
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# General Email Settings (For Password Reset, Notices, etc.)
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp-relay.brevo.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "855189003@smtp-brevo.com")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "hndW9Q4BSIKwNVt0")
+DEFAULT_FROM_EMAIL = "synchronis.developer@gmail.com"
+
+# Additional Email for Registration OTP
+REGISTRATION_EMAIL = {
+    EMAIL_HOST: "smtp-relay.brevo.com",
+    EMAIL_PORT: 587,
+    EMAIL_USE_TLS: True,
+    EMAIL_HOST_USER: os.getenv("REGISTRATION_EMAIL_USER", "85955f002@smtp-brevo.com"),
+    EMAIL_HOST_PASSWORD: os.getenv("REGISTRATION_EMAIL_PASSWORD", "1d2JsqEX5hkpwvY9"),
+    DEFAULT_FROM_EMAIL: "synchronis.dev@gmail.com"
+}
+
+
+MIDDLEWARE.insert(1, 'corsheaders.middleware.CorsMiddleware')
+
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins temporarily
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "OPTIONS"
+]
+
+CORS_ALLOW_HEADERS = [
+    "Authorization",
+    "Content-Type",
+    "X-CSRFToken"
+
+]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',  # Ensure JSON parsing
+    ]
+}

@@ -1,278 +1,279 @@
 {% load static %}
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add College Details</title>
-    <link rel="stylesheet" href="{% static 'css/addcollegedetail.css' %}">
+    <title>College Details</title>
+    <link rel="stylesheet" href="{% static 'css/collegedetails.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 </head>
-<body id="collegepage">
+<body>
+     <!-- Theme Toggle Button -->
+<button id="theme-toggle-btn" class="theme-toggle-btn">
+    <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+</button>
+<div class="page" id="page">
+<div >
+    <div id="college-details" class="college-details">
+    <h2>College Details</h2>
 
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle-btn" class="theme-toggle-btn">
-        <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
-    </button>
 
-    <div class="container">
-        <h1>About College</h1>
+    {% if college_details %}
+    <h4>Current College Details</h4>
+    <p><strong>Name:</strong> <span id="college-name">{{ college_details.name }}</span></p>
+    <p><strong>Email:</strong> <span id="college-email">{{ college_details.email }}</span></p>
+    <p><strong>Phone:</strong> <span id="college-phone">{{ college_details.phone_number }}</span></p>
+    <p><strong>Principal Name:</strong> <span id="college-principal">{{ college_details.principal_name }}</span></p>
+    <p><strong>Principal Contact:</strong> <span id="college-principal-contact">{{ college_details.principal_contact }}</span></p>
+    
+    <button id="delete-college-details" data-id="{{ college_details.id }}" onclick="return confirm('Are you sure you want to delete these details?')">Delete College Details</button>
+    {% endif %}
 
-        <!-- Redirect to College Main Site -->
-        <div class="redirect-section">
-            <a href="https://cascheemeni.ihrd.ac.in/" target="_blank" class="redirect-button">Visit College Main Site</a>
-        </div>
+    {% if college_details %}
+        <h3>Update College Details</h3>
+    {% else %}
+        <h3>Add College Details</h3>
+        <form id="college-details-form" method="post" action="">
+            {% csrf_token %}
+            <label for="id_name">College Name:</label>
+            <input type="text" name="name" id="id_name" value="{{ form.name.value }}" required><br>
+        
+            <label for="id_email">Email:</label>
+            <input type="email" name="email" id="id_email" value="{{ form.email.value }}" required><br>
+        
+            <label for="id_phone_number">Phone Number:</label>
+            <input type="text" name="phone_number" id="id_phone_number" value="{{ form.phone_number.value }}" required><br>
+        
+            <label for="id_principal_name">Principal Name:</label>
+            <input type="text" name="principal_name" id="id_principal_name" value="{{ form.principal_name.value }}" required><br>
+        
+            <label for="id_principal_contact">Principal Contact:</label>
+            <input type="text" name="principal_contact" id="id_principal_contact" value="{{ form.principal_contact.value }}" required><br>
+        
+            <button type="submit" id="submit-btn">
+                {% if college_details %} Update {% else %} Add {% endif %}
+            </button>
+        </form>
+    {% endif %}
 
-        <!-- Add College Details Form -->
-        <div class="form-section">
-            <h2>Add College Details</h2>
-            <form id="add-college-details-form">
-                {% csrf_token %}
-                <label for="college-name">College Name</label>
-                <input type="text" id="college-name" name="college_name" required>
-                <label for="college-email">Email</label>
-                <input type="email" id="college-email" name="college_email" required>
-                <label for="college-phone">Phone Number</label>
-                <input type="tel" id="college-phone" name="college_phone" required>
-                <label for="principal-name">Principal Name</label>
-                <input type="text" id="principal-name" name="principal_name" required>
-                <label for="principal-contact">Principal Contact</label>
-                <input type="tel" id="principal-contact" name="principal_contact" required>
-                <button type="submit">Add College Details</button>
-            </form>
-        </div>
+    <form id="college-details-form-update" method="post" action="">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" id="submit-btn-update">
+            {% if college_details %} Update {% else %} Add {% endif %}
+        </button>
+    </form>
 
-        <!-- Add Subjects Form -->
-        <div class="form-section">
-            <h2>Add Subjects</h2>
-            <form id="add-subject-form">
-                {% csrf_token %}
-                <label for="subject-name">Subject Name</label>
-                <input type="text" id="subject-name" name="subject_name" required>
+</div>
+</div>
+    <h2>Departments Management</h2>
+    <form id="department-form" method="get" >
+        <table id="departments-list">
+            <thead>
+                <tr>
+                    <th>Department ID</th>
+                    <th>Department Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for department in dments %}
+                <tr>
+                    <td>{{ department.department_id }}</td>
+                    <td>{{ department.Department }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+    <a href="{% url 'manage_departments' %}">
+        <button>Manage Departments</button>
+    </a>
 
-                <!-- Department Dropdown -->
-                <label for="department">Department</label>
-                <select id="department" name="department_id" required>
-                    {% for department in departments %}
-                        <option value="{{ department.id }}">{{ department.department_name }}</option>
-                    {% endfor %}
-                </select>
+<h2>Course Management</h2>
+<form id="course-form" method="get" >
+    <table id="courses-list">
+        <thead>
+            <tr>
+                <th>Course Name</th>
+                <th>Department</th>
+                <th>Duration</th>
+                <th>Code</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ course.CourseName }}</td>
+                <td>{{ course.Department.Department }}</td>
+                <td>{{ course.CourseDuration }}</td>
+                <td>{{ course.CourseCode }}</td>
+                <td>{{ course.CourseDescription }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>
+<a href="{% url 'manage_courses' %}">
+    <button>Manage Courses</button>
+</a>
 
-                <!-- Course Dropdown -->
-                <label for="course">Course</label>
-                <select id="course" name="course_id" required>
-                    {% for course in courses %}
-                        <option value="{{ course.id }}">{{ course.course_name }}</option>
-                    {% endfor %}
-                </select>
+<h2>Subjects Management</h2>
+<form id="subject-form" method="get" >
+    <table id="subjects-list">
+        <thead>
+            <tr>
+                <th>Subject Code</th>
+                <th>Subject Name</th>
+                <th>Department</th>
+                <th>Course</th>
+                <th>Year of Syllabus</th>
+                <th>Semester</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject in subjects %}
+            <tr>
+                <td>{{ subject.Subject_code }}</td>
+                <td>{{ subject.SubjectName }}</td>
+                <td>{{ subject.Department.Department }}</td>
+                <td>{{ subject.Course.CourseName }}</td>
+                <td>{{ subject.Year_of_Syllabus }}</td>
+                <td>{{ subject.Semester.Semester }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>
+<button id="manage-subjects-btn">Manage Subjects</button>
+<h2>Class And Class Teachers<h2>
+<form id="class-form" method="get" >
+    <table id="classes-list">
+        <thead>
+            <tr>
+                <th>Class Name</th>
+                <th>Class Teacher</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for class in classes %}
+            <tr>
+                <td>{{ class.ClassName }}</td>
+                <td>{{ class.TeacherName.TeacherName }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>
+    <a href="{% url 'class_teacher_allocation' %}">
+        <button>Manage Class Teacher Allocation</button>
+    </a>
+    
+</div>
 
-                <!-- Semester Dropdown -->
-                <label for="semester">Semester</label>
-                <select id="semester" name="semester_id" required>
-                    {% for semester in semesters %}
-                        <option value="{{ semester.id }}">{{ semester.semester_name }}</option>
-                    {% endfor %}
-                </select>
+    
+<script src="{% static 'js/theme-switcher.js' %}"></script>
+<script>
+    $('#manage-subjects-btn').on('click', function(event) {
+        event.preventDefault();  // Prevent form submission or default behavior
+        window.location.href = '{% url "manage_subjects" %}';
+    });
+</script>
 
-                <button type="submit">Add Subject</button>
-            </form>
-        </div>
+    
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Get the "Go to Home" button
+      const goHomeButton = document.getElementById('go-home-btn');
+      
+      // Add event listener for click event
+      goHomeButton.addEventListener('click', function() {
+        // Redirect to the home page (You can change the URL if needed)
+        window.history.back(); // "/" is the root URL (Home page)
+      });
+    });
 
-        <!-- Add Departments and Courses Form -->
-        <div class="form-section">
-            <h2>Add Departments and Courses</h2>
-            <form id="add-department-course-form">
-                {% csrf_token %}
-                <label for="department-name">Department Name</label>
-                <input type="text" id="department-name" name="department_name" required>
-                <label for="course-name">Course Name</label>
-                <input type="text" id="course-name" name="course_name" required>
-                <button type="submit">Add Department and Course</button>
-            </form>
-        </div>
-
-        <!-- View Subjects Table -->
-        <div class="table-section">
-            <h2>Subjects</h2>
-            <table id="subjects-table">
-                <thead>
-                    <tr>
-                        <th>Subject ID</th>
-                        <th>Subject Code</th>
-                        <th>Subject Name</th>
-                        <th>Department</th>
-                        <th>Course</th>
-                        <th>Semester</th>
-                        <th>Year of Syllabus</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for subject in subjects %}
-                    <tr>
-                        <td>{{ subject.id }}</td>
-                        <td>{{ subject.SubjectCode }}</td>
-                        <td>{{ subject.SubjectName }}</td>
-                        <td>{{ subject.Department }}</td>
-                        <td>{{ subject.Course }}</td>
-                        <td>{{ subject.Semester }}</td>
-                        <td>{{ subject.Year_of_Syllabus }}</td>
-                        <td>
-                            <button class="delete-btn" data-id="{{ subject.id }}">Delete</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- View Departments and Courses Table -->
-        <div class="table-section">
-            <h2>Departments and Courses</h2>
-            <table id="departments-courses-table">
-                <thead>
-                    <tr>
-                        <th>Department ID</th>
-                        <th>Department Name</th>
-                        <th>Course Name</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for department_course in department_courses %}
-                    <tr>
-                        <td>{{ department_course.id }}</td>
-                        <td>{{ department_course.Department}}</th>
-                        <td>{{ department_course.CourseName}}</th>
-                        <td>
-                            <button class="delete-btn" data-id="{{ department_course.id }}">Delete</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <script src="{% static 'js/theme-switcher.js' %}"></script>
     <script>
-        // JavaScript for handling form submissions and dynamically updating tables
-        document.getElementById('add-college-details-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const collegeName = document.getElementById('college-name').value;
-            const collegeEmail = document.getElementById('college-email').value;
-            const collegePhone = document.getElementById('college-phone').value;
-            const principalName = document.getElementById('principal-name').value;
-            const principalContact = document.getElementById('principal-contact').value;
+        // AJAX for adding and updating college details
+        $('#college-details-form').on('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
 
-            // AJAX call to add the college details to the database
-            fetch('/add_college_details/', {
-                method: 'POST',
+            const form = $(this);
+            const url = form.attr('action') || '{% url "college_details" %}';
+            const method = form.find('#submit-btn').text().toLowerCase() === 'add' ? 'POST' : 'POST'; // Both Add and Update use POST
+
+            const requestUrl = '{% url "update_college_details" %}';  // Correct URL for updating
+
+            $.ajax({
+                url: requestUrl,
+                method: method,
+                data: form.serialize(), // Serialize form data
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-CSRFToken': '{{ csrf_token }}' // Pass the CSRF token in headers
                 },
-                body: JSON.stringify({ 
-                    college_name: collegeName,
-                    college_email: collegeEmail,
-                    college_phone: collegePhone,
-                    principal_name: principalName,
-                    principal_contact: principalContact
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('College details added successfully!');
-                    document.getElementById('add-college-details-form').reset();
-                }
-            });
-        });
-
-        document.getElementById('add-subject-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const subjectName = document.getElementById('subject-name').value;
-
-            // AJAX call to add the subject to the database
-            fetch('/add_subject/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ subject_name: subjectName })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Add the new subject to the table
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
-                        <td>${data.subject_id}</td>
-                        <td>${subjectName}</td>
-                        <td><button class="delete-btn" data-id="${data.subject_id}">Delete</button></td>
-                    `;
-                    document.querySelector('#subjects-table tbody').appendChild(newRow);
-                    document.getElementById('subject-name').value = '';
-                }
-            });
-        });
-
-        document.getElementById('add-department-course-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const departmentName = document.getElementById('department-name').value;
-            const courseName = document.getElementById('course-name').value;
-
-            // AJAX call to add the department and course to the database
-            fetch('/add_department_course/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ department_name: departmentName, course_name: courseName })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Add the new department and course to the table
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
-                        <td>${data.department_id}</td>
-                        <td>${departmentName}</td>
-                        <td>${courseName}</td>
-                        <td><button class="delete-btn" data-id="${data.department_id}">Delete</button></td>
-                    `;
-                    document.querySelector('#departments-courses-table tbody').appendChild(newRow);
-                    document.getElementById('department-name').value = '';
-                    document.getElementById('course-name').value = '';
-                }
-            });
-        });
-
-        // Add event listeners for delete buttons in the tables (delegation pattern)
-        document.addEventListener('click', function(event) {
-            if (event.target.classList.contains('delete-btn')) {
-                const id = event.target.getAttribute('data-id');
-                const row = event.target.closest('tr');
-                
-                // AJAX call to delete the subject or department/course
-                fetch(`/delete_entry/${id}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        if (response.action === 'add') {
+                            // Update the page with new details
+                            $('#college-name').text(response.college.name);
+                            $('#college-email').text(response.college.email);
+                            $('#college-phone').text(response.college.phone_number);
+                            $('#college-principal').text(response.college.principal_name);
+                            $('#college-principal-contact').text(response.college.principal_contact);
+                            // Change the form to "Update" mode after successful addition
+                            $('#submit-btn').text('Update');
+                        } else if (response.action === 'update') {
+                            // College updated successfully (page should already be updated)
+                            alert('College details updated successfully!');
+                            // Update the page with the new values
+                            $('#college-name').text(response.college.name);
+                            $('#college-email').text(response.college.email);
+                            $('#college-phone').text(response.college.phone_number);
+                            $('#college-principal').text(response.college.principal_name);
+                            $('#college-principal-contact').text(response.college.principal_contact);
+                        }
+                    } else {
+                        alert('Error: ' + response.message);
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Remove the row from the table
-                        row.remove();
-                    }
-                });
-            }
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                    alert('An error occurred while processing your request.');
+                }
+            });
         });
     </script>
+
+    <!-- AJAX for deleting college details -->
+    <script>
+        $('#delete-college-details').on('click', function() {
+            const collegeId = $(this).data('id');
+
+            $.ajax({
+                url: '{% url "delete_college_details" %}',  // Correct URL
+                method: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'id': collegeId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload(); // Reload the page to show the updated state
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                    alert('An error occurred while deleting college details.');
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>

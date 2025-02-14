@@ -1,7 +1,4 @@
-
 {% load static %}
-
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -9,28 +6,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
-    {% comment %} <link rel="stylesheet" href="{% static 'css/mainpage.css' %}"> {% endcomment %}
     <!-- Font Awesome for icons (sun and moon icons for theme toggle) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body class="mainpage">
 
-
     <!-- Theme Toggle Button -->
     <button id="theme-toggle-btn" class="theme-toggle-btn">
         <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
     </button>
 
-      <!-- Geometric Background Circles -->
+    <!-- Geometric Background Circles -->
     <div id="mainpage-circle-top-left" class="circle-top-left"></div>
     <div id="mainpage-circle-bottom-left" class="circle-bottom-left"></div>
 
     {% block content %}
     <div id="mainpage" class="mainpage-container">
-       
-    
         <div class="welcome-page">
+            <!-- Animated Logo -->
+            <div id="mainpage-logo-container" class="logo-container">
+                <style>
+                    /* Style for the Logo Container */
+                    #mainpage-logo-container {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin-bottom: 20px;
+                    }
+                
+                    /* Style for the Logo Container */
+                    #mainpage-logo-container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin-bottom: 20px;
+                    }
+
+                /* Animated Logo Styles */
+                #mainpage-animated-logo {
+                width: 200px;
+                height: 200px;
+                animation: bounce 2s infinite ease-in-out;
+                transform-origin: bottom center; /* Anchor for bounce effect */
+                }
+
+                /* Keyframes for Bounce Animation */
+                @keyframes bounce {
+                0%, 100% {
+                transform: translateY(0); /* Start and end at original position */
+                }
+                50% {
+                transform: translateY(-20px); /* Move upward */
+                }
+                }
+
+                </style>
+                
+                <img src="{% static 'logo/images/S_Logo.png' %}" alt="Logo" id="mainpage-animated-logo" class="animated-logo">
+            </div>
             <div class="welcome-text">
                 <span>SynChronis</span>
             </div>
@@ -38,6 +72,7 @@
         </div>
     </div>
     {% endblock %}
+
     <!-- JavaScript for Theme Toggle -->
     <script src="{% static 'js/theme-switcher.js' %}"></script>
 

@@ -17,9 +17,71 @@
 
     
 
-    <div class="admindashboard-header">
-        <h1 class="admindashboard-admindashboard-gold-text">Admin Dashboard</h1>
+<div class="admindashboard-header">
+    <!-- Logo Container -->
+    <div id="mainpage-logo-container" class="logo-container">
+        <img 
+            src="{% static 'logo/images/S_Logo.png' %}" 
+            alt="Logo" 
+            id="mainpage-animated-logo"
+            class="animated-logo">
+        <h1 class="admindashboard-gold-text">Admin Dashboard</h1>
     </div>
+    
+    
+
+<!-- Theme-specific styles -->
+<style>
+    /* Logo Container */
+    #mainpage-logo-container {
+        display: flex;
+        align-items: center;
+        gap: 15px; /* Space between logo and text */
+        animation: logo-slide-in 1.2s ease-out forwards; /* Slide-in effect */
+    }
+
+    #mainpage-animated-logo {
+        width: 70px;
+        height: 70px;
+        animation: bounce 2s infinite ease-in-out; /* Continuous bounce */
+        transform-origin: center; /* Anchor point for animations */
+        filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25)); /* Shadow */
+        transition: transform 0.3s ease-in-out; /* Smooth transform on hover */
+    }
+
+    #mainpage-logo-container:hover #mainpage-animated-logo {
+        transform: scale(1.1); /* Slight scale-up on hover */
+    }
+
+    /* Dark mode adjustments */
+    body.admindashboard.dark #mainpage-animated-logo {
+        filter: drop-shadow(0px 4px 6px rgba(255, 255, 255, 0.3));
+    }
+
+    /* Slide-in Animation */
+    @keyframes logo-slide-in {
+        0% {
+            opacity: 0;
+            transform: translateX(-50px); /* Start off-screen to the left */
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(0); /* End at original position */
+        }
+    }
+
+    /* Bounce Animation */
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px); /* Bounce upward */
+        }
+    }
+</style>
+
+
 
     <div class="admindashboard-container">
         <!-- Teacher Section -->
@@ -112,7 +174,7 @@
                         <h2 class="admindashboard-gold-text">About College</h2>
                     </div>
                     <div class="admindashboard-card-body">
-                        <a href="/add-college-details"><button type="button" class="admindashboard-btn btn-gold">College Details</button></a>
+                        <a href="/college_details"><button type="button" class="admindashboard-btn btn-gold">College Details</button></a>
                     </div>
                 </div>
             </div>

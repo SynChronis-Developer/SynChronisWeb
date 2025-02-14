@@ -1,609 +1,300 @@
-{% load static%}
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Attendance View</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrwap.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- jsPDF library -->
-  <link rel="stylesheet" href="{% static 'css/attendanceview.css'%}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
-  <div class="container mt-5">
-    <h2>View Attendance</h2>
-
-    <!-- Attendance Type Toggle -->
-    <ul class="nav nav-tabs" id="attendanceTypeTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab" aria-controls="monthly" aria-selected="true">Monthly</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="semesterly-tab" data-bs-toggle="tab" data-bs-target="#semesterly" type="button" role="tab" aria-controls="semesterly" aria-selected="false">Semesterly</button>
-      </li>
-    </ul>
-
-    <div class="tab-content mt-3" id="attendanceTypeTabContent">
-      <!-- Monthly Tab Content -->
-      <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
-        <ul class="nav nav-tabs" id="monthlyTab" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button" role="tab" aria-controls="students" aria-selected="true">Students</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="classwise-tab" data-bs-toggle="tab" data-bs-target="#classwise" type="button" role="tab" aria-controls="classwise" aria-selected="false">Classwise</button>
-          </li>
+    <div class="container mt-5">
+        <!-- Main Tabs Navigation (Student Attendance, Class Attendance) -->
+        <ul class="nav nav-tabs" id="attendanceTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="student-attendance-tab" data-bs-toggle="tab" href="#student-attendance" role="tab" aria-controls="student-attendance" aria-selected="true">Student Attendance</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="class-attendance-tab" data-bs-toggle="tab" href="#class-attendance" role="tab" aria-controls="class-attendance" aria-selected="false">Class Attendance</a>
+            </li>
         </ul>
 
-        <div class="tab-content mt-3" id="monthlyTabContent">
-          <!-- Monthly Students Filter Form -->
-          <div class="tab-pane fade show active" id="students" role="tabpanel" aria-labelledby="students-tab">
-            <form id="monthly-student-form">
-              <div class="form-group">
-                <label>Month:</label>
-                <select class="input" name="month">
-                  <option value="feb">February</option>
-                  <option value="march">March</option>
-                  <option value="april">April</option>
-                </select>
-              </div>
+        <!-- Main Tabs Content -->
+        <div class="tab-content mt-3">
+            <!-- Student Attendance Tab Content -->
+            <div class="tab-pane fade show active" id="student-attendance" role="tabpanel" aria-labelledby="student-attendance-tab">
+                <ul class="nav nav-pills" id="studentTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="student-monthly-tab" data-bs-toggle="pill" href="#student-monthly" role="tab" aria-controls="student-monthly" aria-selected="true">Monthly Attendance</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="student-semester-tab" data-bs-toggle="pill" href="#student-semester" role="tab" aria-controls="student-semester" aria-selected="false">Semester Attendance</a>
+                    </li>
+                </ul>
 
-              <div class="form-group">
-                <label>Year:</label>
-                <select class="input" name="year">
-                  <option value="2023">2023</option>
-                  <option value="2024">2024</option>
-                  <option value="2025">2025</option>
-                </select>
-              </div>
+                <!-- Student Tabs Content -->
+                <div class="tab-content mt-3">
+                    <!-- Monthly Attendance (Student) -->
+                    <div class="tab-pane fade show active" id="student-monthly" role="tabpanel" aria-labelledby="student-monthly-tab">
+                        <h4>Monthly Attendance (Student)</h4>
+                        <form id="studentMonthlyForm">
+                            <div class="mb-3">
+                                <label for="studentSelect" class="form-label">Student</label>
+                                <select id="studentSelect" class="form-select" required>
+                                    {%for student in students%}
+                                    <option value="{{student.id}}">{{student.StudentName}}</option>
+                                    <!-- Dynamically populated options -->
+                                    {%endfor%}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="studentMonthSelect" class="form-label">Month</label>
+                                <input type="month" id="studentMonthSelect" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Get Attendance</button>
+                        </form>
+                        <table id="studentMonthlyTable" class="table mt-3" style="display: none;">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Attendance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentMonthlyTableBody"></tbody>
+                        </table>
+                    </div>
 
-              <div class="form-group">
-                <label>Registration Number:</label>
-                <select class="input" name="registration">
-                  <option value="AC22CCSR01">AC22CCSR01</option>
-                  <option value="AC22CSSR03">AC22CSSR03</option>
-                  <option value="AC22CCSR14">AC22CCSR14</option>
-                </select>
-              </div>
-
-              <button type="submit" class="button-submit">Submit</button>
-            </form>
-
-            <!-- Dynamic Monthly Studentwise Data Table -->
-            <div id="student-details" style="display:none;">
-              <h4>Details:</h4>
-              <p id="student-info"></p>
+                    <!-- Semester Attendance (Student) -->
+                    <div class="tab-pane fade" id="student-semester" role="tabpanel" aria-labelledby="student-semester-tab">
+                        <h4>Semester Attendance (Student)</h4>
+                        <form id="studentSemesterForm">
+                            <div class="mb-3">
+                                <label for="studentSemesterSelect" class="form-label">Student</label>
+                                <select id="studentSemesterSelect" class="form-select" required>
+                                  {%for student in students%}
+                                  <option value="{{student.id}}">{{student.StudentName}}</option>
+                                  <!-- Dynamically populated options -->
+                                  {%endfor%}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="studentSemesterYearSelect" class="form-label">Semester</label>
+                                <select id="studentSemesterYearSelect" class="form-select" required>
+                                  {%for semester in semesters%}
+                                    <option value="{{semester.id}}">{{semester.Semester}}</option>
+                                    <!-- Dynamically populated semesters -->
+                                  {%endfor%}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Get Attendance</button>
+                        </form>
+                        <table id="studentSemesterTable" class="table mt-3" style="display: none;">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Total Hours</th>
+                                    <th>Hours Present</th>
+                                    <th>Attendance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentSemesterTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            <table class="table" id="monthly-studentwise-table" style="display:none;">
-              <thead>
-                <tr>
-                  <th>Week</th>
-                  <th>Total Hours</th>
-                  <th>Total Hours Present</th>
-                  <th>Attendance Percentage per Week</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Dynamic rows will be added here after form submission -->
-              </tbody>
-            </table>
+            <!-- Class Attendance Tab Content -->
+            <div class="tab-pane fade" id="class-attendance" role="tabpanel" aria-labelledby="class-attendance-tab">
+                <ul class="nav nav-pills" id="classTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="class-monthly-tab" data-bs-toggle="pill" href="#class-monthly" role="tab" aria-controls="class-monthly" aria-selected="true">Monthly Attendance</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="class-semester-tab" data-bs-toggle="pill" href="#class-semester" role="tab" aria-controls="class-semester" aria-selected="false">Semester Attendance</a>
+                    </li>
+                </ul>
 
-            <!-- Print Button -->
-            <button id="print-btn" class="btn btn-primary" style="display:none;">Print</button>
-          </div>
+                <!-- Class Tabs Content -->
+                <div class="tab-content mt-3">
+                    <!-- Monthly Attendance (Class) -->
+                    <div class="tab-pane fade show active" id="class-monthly" role="tabpanel" aria-labelledby="class-monthly-tab">
+                        <h4>Monthly Attendance (Class)</h4>
+                        <form id="classMonthlyForm">
+                            <div class="mb-3">
+                                <label for="classSelect" class="form-label">Class</label>
+                                <select id="classSelect" class="form-select" required>
+                                  {%for class in classes%}
+                                  <option value="{{class.id}}">{{class.ClassName}}</option>
+                                  <!-- Dynamically populated options -->
+                                {%endfor%}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="classMonthSelect" class="form-label">Month</label>
+                                <input type="month" id="classMonthSelect" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Get Attendance</button>
+                        </form>
+                        <table id="classMonthlyTable" class="table mt-3" style="display: none;">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Total Hours</th>
+                                    <th>Hours Present</th>
+                                    <th>Attendance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="classMonthlyTableBody"></tbody>
+                        </table>
+                    </div>
 
-          <!-- Monthly Classwise Filter Form -->
-<div class="tab-pane fade" id="classwise" role="tabpanel" aria-labelledby="classwise-tab">
-  <form id="monthly-classwise-form">
-    <div class="form-group">
-      <label>Month:</label>
-      <select class="input" name="month">
-        <option value="feb">February</option>
-        <option value="march">March</option>
-        <option value="april">April</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Year:</label>
-      <select class="input" name="year">
-        <option value="2023">2023</option>
-        <option value="2024">2024</option>
-        <option value="2025">2025</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Class:</label>
-      <select class="input" name="class">
-        <option value="CS101">CS101</option>
-        <option value="CS102">CS102</option>
-        <option value="CS103">CS103</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Semester:</label>
-      <select class="input" name="semester">
-        <option value="Semester 1">Semester 1</option>
-        <option value="Semester 2">Semester 2</option>
-      </select>
-    </div>
-
-    <button type="submit" class="button-submit">Submit</button>
-  </form>
-
-  <!-- Class Details (above table) -->
-  <div id="class-info" style="margin-top: 20px;"></div>
-
-  <!-- Monthly Classwise Data Table -->
-  <table class="table" id="monthly-classwise-table" style="display:none;">
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Register Number</th>
-        <th>Total Hours in the Month</th>
-        <th>Total Hours Present</th>
-        <th>Attendance Percentage</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-    <tfoot>
-      <tr id="average-row">
-        <td colspan="2"><strong>Average</strong></td>
-        <td id="avg-total-hours"></td>
-        <td id="avg-hours-present"></td>
-        <td id="avg-attendance"></td>
-      </tr>
-    </tfoot>
-  </table>
-
-  <!-- Print Button -->
-  <button id="monthly-classwise-print-btn" style="display:none;">Print Report</button>
-</div>
-
-        </div>
-      </div>
-
-      <!-- Semesterly Tab Content -->
-      <div class="tab-pane fade" id="semesterly" role="tabpanel" aria-labelledby="semesterly-tab">
-        <ul class="nav nav-tabs" id="semesterlyTab" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="semesterly-students-tab" data-bs-toggle="tab" data-bs-target="#semesterly-students" type="button" role="tab" aria-controls="semesterly-students" aria-selected="true">Students</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="semesterly-classwise-tab" data-bs-toggle="tab" data-bs-target="#semesterly-classwise" type="button" role="tab" aria-controls="semesterly-classwise" aria-selected="false">Classwise</button>
-          </li>
-        </ul>
-
-        <div class="tab-content mt-3" id="semesterlyTabContent">
-          <!-- Semesterly Students Filter Form -->
-          <div class="tab-pane fade show active" id="semesterly-students" role="tabpanel" aria-labelledby="semesterly-students-tab">
-            <form id="semesterly-student-form">
-              <div class="form-group">
-                <label>Semester:</label>
-                <select class="input" name="semester">
-                  <option value="1">Semester 1</option>
-                  <option value="2">Semester 2</option>
-                  <option value="3">Semester 3</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Registration Number:</label>
-                <select class="input" name="registration">
-                  <option value="AC22CCSR01">AC22CCSR01</option>
-                  <option value="AC22CSSR03">AC22CSSR03</option>
-                  <option value="AC22CCSR14">AC22CCSR14</option>
-                </select>
-              </div>
-
-              <button type="submit" class="button-submit">Submit</button>
-            </form>
-
-            <!-- Dynamic Semesterly Studentwise Data Table -->
-            <div id="semesterly-student-details" style="display:none;">
-              <h4>Details:</h4>
-              <p id="semesterly-student-info"></p>
+                    <!-- Semester Attendance (Class) -->
+                    <div class="tab-pane fade" id="class-semester" role="tabpanel" aria-labelledby="class-semester-tab">
+                        <h4>Semester Attendance (Class)</h4>
+                        <form id="classSemesterForm">
+                            <div class="mb-3">
+                                <label for="classSemesterSelect" class="form-label">Class</label>
+                                <select id="classSemesterSelect" class="form-select" required>
+                                  {%for class in classes%}
+                                    <option value="{{class.id}}">{{class.ClassName}}</option>
+                                    <!-- Dynamically populated options -->
+                                  {%endfor%}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="classSemesterYearSelect" class="form-label">Semester</label>
+                                <select id="classSemesterYearSelect" class="form-select" required>
+                                  {%for semester in semesters%}
+                                  <option value="{{semester.id}}">{{semester.Semester}}</option>
+                                  <!-- Dynamically populated semesters -->
+                                {%endfor%}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Get Attendance</button>
+                        </form>
+                        <table id="classSemesterTable" class="table mt-3" style="display: none;">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Total Hours</th>
+                                    <th>Hours Present</th>
+                                    <th>Attendance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="classSemesterTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-
-            <table class="table" id="semesterly-studentwise-table" style="display:none;">
-              <thead>
-                <tr>
-                  <th>Month</th>
-                  <th>Total Hours</th>
-                  <th>Total Hours Present</th>
-                  <th>Attendance Percentage per Month</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Dynamic rows will be added here after form submission -->
-              </tbody>
-            </table>
-
-            <!-- Print Button -->
-            <button id="semesterly-print-btn" class="btn btn-primary" style="display:none;">Print</button>
-          </div>
-
-          <!-- Semesterly Classwise Filter Form -->
-<div class="tab-pane fade" id="semesterly-classwise" role="tabpanel" aria-labelledby="semesterly-classwise-tab">
-  <form id="semesterly-classwise-form">
-    <div class="form-group">
-      <label>Year:</label>
-      <select class="input" name="year">
-        <option value="2023">2023</option>
-        <option value="2024">2024</option>
-        <option value="2025">2025</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Class:</label>
-      <select class="input" name="class">
-        <option value="CS101">CS101</option>
-        <option value="CS102">CS102</option>
-        <option value="CS103">CS103</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Semester:</label>
-      <select class="input" name="semester">
-        <option value="Semester 1">Semester 1</option>
-        <option value="Semester 2">Semester 2</option>
-      </select>
-    </div>
-
-    <button type="submit" class="button-submit">Submit</button>
-  </form>
-
-  <!-- Semester Details (above table) -->
-  <div id="semester-info" style="margin-top: 20px;"></div>
-
-  <!-- Semesterly Classwise Data Table -->
-  <table class="table" id="semesterly-classwise-table" style="display:none;">
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Register Number</th>
-        <th>Total Hours in the Semester</th>
-        <th>Total Hours Present</th>
-        <th>Attendance Percentage</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-    <tfoot>
-      <tr id="average-row">
-        <td colspan="2"><strong>Average</strong></td>
-        <td id="avg-total-hours-semester"></td>
-        <td id="avg-hours-present-semester"></td>
-        <td id="avg-attendance-semester"></td>
-      </tr>
-    </tfoot>
-  </table>
-
-  <!-- Print Button -->
-  <button id="semesterly-classwise-print-btn" style="display:none;">Print Report</button>
-</div>
-
         </div>
-      </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // JavaScript to handle form submission, table display, and PDF generation for Monthly Studentwise
-document.getElementById("monthly-student-form").addEventListener("submit", function(event) {
-  event.preventDefault();
+    <script>
+        // Function to fetch students and classes for dropdowns
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchStudents();
+            fetchClasses();
+            fetchSemesters();
+        });
 
-  // Get the selected values
-  const month = document.querySelector('[name="month"]').value;
-  const year = document.querySelector('[name="year"]').value;
-  const registration = document.querySelector('[name="registration"]').value;
+        // Fetch Students (for the dropdown)
+        function fetchStudents() {
+            fetch('/attendanceview/api/students/')
+                .then(response => response.json())
+                .then(data => {
+                    let studentSelect = document.getElementById("studentSelect");
+                    let studentSemesterSelect = document.getElementById("studentSemesterSelect");
+                    data.forEach(student => {
+                        let option = `<option value="${student.id}">${student.name}</option>`;
+                        studentSelect.innerHTML += option;
+                        studentSemesterSelect.innerHTML += option;
+                    });
+                });
+        }
 
-  // Format the current date as DD-MM-YYYY
-  const currentDate = new Date();
-  const day = ("0" + currentDate.getDate()).slice(-2);
-  const monthName = ("0" + (currentDate.getMonth() + 1)).slice(-2);
-  const yearFormatted = currentDate.getFullYear();
-  const formattedDate = `${day}-${monthName}-${yearFormatted}`;
+        // Fetch Classes (for the dropdown)
+        function fetchClasses() {
+            fetch('/attendanceview/api/classes/')
+                .then(response => response.json())
+                .then(data => {
+                    let classSelect = document.getElementById("classSelect");
+                    let classSemesterSelect = document.getElementById("classSemesterSelect");
+                    data.forEach(classItem => {
+                        let option = `<option value="${classItem.id}">${classItem.name}</option>`;
+                        classSelect.innerHTML += option;
+                        classSemesterSelect.innerHTML += option;
+                    });
+                });
+        }
 
-  // Set the details above the table
-  const studentInfo = `
-    <strong>Registration Number:</strong> ${registration} <br>
-    <strong>Month:</strong> ${month} <br>
-    <strong>Year:</strong> ${year} <br>
-    <strong>Date:</strong> ${formattedDate}
-  `;
-  document.getElementById("student-info").innerHTML = studentInfo;
-  document.getElementById("student-details").style.display = "block";
+        // Fetch Semesters (for the dropdowns)
+        function fetchSemesters() {
+            fetch('/attendanceview/api/semesters/')
+                .then(response => response.json())
+                .then(data => {
+                    let studentSemesterYearSelect = document.getElementById("studentSemesterYearSelect");
+                    let classSemesterYearSelect = document.getElementById("classSemesterYearSelect");
+                    data.forEach(semester => {
+                        let option = `<option value="${semester.id}">${semester.name}</option>`;
+                        studentSemesterYearSelect.innerHTML += option;
+                        classSemesterYearSelect.innerHTML += option;
+                    });
+                });
+        }
 
-  // Show the table (normally you would fetch data here, but for now, we simulate it)
-  const table = document.getElementById("monthly-studentwise-table");
-  const tbody = table.querySelector("tbody");
-  tbody.innerHTML = ""; // Clear any existing rows
+        // Generic Function to Fetch Attendance
+        function fetchAttendance(id, param1, param2, type, isSemester = false) {
+            let url = `/attendanceview/api/attendance/${type}/${id}/`;
+            if (isSemester) {
+                url += `?semester=${param1}`;
+            } else {
+                url += `?month=${param1}&year=${param2}`;
+            }
 
-  // Simulate dynamic data
-  const rowData = [
-    { week: 1, totalHours: 40, hoursPresent: 38, attendance: "95%" },
-    { week: 2, totalHours: 40, hoursPresent: 35, attendance: "87.5%" },
-  ];
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (type === 'student') {
+                        let table = document.getElementById('studentMonthlyTable');
+                        let tableBody = document.getElementById('studentMonthlyTableBody');
+                        table.style.display = 'table';
+                        tableBody.innerHTML = '';
+                        data.forEach(record => {
+                            let row = `<tr><td>${record.date}</td><td>${record.status}</td><td>${record.attendance}</td></tr>`;
+                            tableBody.innerHTML += row;
+                        });
+                    } else {
+                        let table = document.getElementById('classMonthlyTable');
+                        let tableBody = document.getElementById('classMonthlyTableBody');
+                        table.style.display = 'table';
+                        tableBody.innerHTML = '';
+                        data.forEach(record => {
+                            let row = `<tr><td>${record.student}</td><td>${record.total_hours}</td><td>${record.present_hours}</td><td>${record.attendance}</td></tr>`;
+                            tableBody.innerHTML += row;
+                        });
+                    }
+                });
+        }
 
-  rowData.forEach(row => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${row.week}</td>
-      <td>${row.totalHours}</td>
-      <td>${row.hoursPresent}</td>
-      <td>${row.attendance}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+        // Student Monthly Form Submission
+        document.getElementById('studentMonthlyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let studentId = document.getElementById("studentSelect").value;
+            let month = document.getElementById("studentMonthSelect").value;
+            fetchAttendance(studentId, month, null, 'student');
+        });
 
-  table.style.display = "table"; // Show the table
-  document.getElementById("print-btn").style.display = "block"; // Show the print button
-});
+        // Class Monthly Form Submission
+        document.getElementById('classMonthlyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let classId = document.getElementById("classSelect").value;
+            let month = document.getElementById("classMonthSelect").value;
+            fetchAttendance(classId, month, null, 'class');
+        });
 
-// Print functionality to generate PDF for Monthly Studentwise
-document.getElementById("print-btn").addEventListener("click", function() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // Add title and table details
-  doc.text("Monthly Attendance Report", 10, 10);
-  const table = document.getElementById("monthly-studentwise-table");
-  doc.autoTable({ html: table });
-
-  // Save the PDF
-  doc.save("monthly_attendance_report.pdf");
-});
-
-// JavaScript to handle form submission, table display, and PDF generation for Monthly Classwise
-document.getElementById("monthly-classwise-form").addEventListener("submit", function(event) {
-  event.preventDefault();  // Prevent form from submitting normally
-
-  // Get the selected values
-  const month = document.querySelector('[name="month"]').value;
-  const year = document.querySelector('[name="year"]').value;
-  const className = document.querySelector('[name="class"]').value;
-  const semester = document.querySelector('[name="semester"]').value;
-
-  // Format the current date as DD-MM-YYYY
-  const currentDate = new Date();
-  const day = ("0" + currentDate.getDate()).slice(-2);
-  const monthName = ("0" + (currentDate.getMonth() + 1)).slice(-2);
-  const yearFormatted = currentDate.getFullYear();
-  const formattedDate = `${day}-${monthName}-${yearFormatted}`;
-
-  // Set the details above the table
-  const classInfo = `
-    <strong>Class:</strong> ${className} <br>
-    <strong>Semester:</strong> ${semester} <br>
-    <strong>Month:</strong> ${month} <br>
-    <strong>Year:</strong> ${year} <br>
-    <strong>Date:</strong> ${formattedDate}
-  `;
-  document.getElementById("class-info").innerHTML = classInfo;
-
-  // Fetch the table and body
-  const table = document.getElementById("monthly-classwise-table");
-  const tbody = table.querySelector("tbody");
-  tbody.innerHTML = ""; // Clear any existing rows
-
-  // Simulated data (replace with real data from API/backend)
-  const rowData = [
-    { no: 1, registerNumber: 'R001', totalHours: 160, hoursPresent: 150, attendance: 93.75 },
-    { no: 2, registerNumber: 'R002', totalHours: 160, hoursPresent: 155, attendance: 96.87 },
-    { no: 3, registerNumber: 'R003', totalHours: 160, hoursPresent: 140, attendance: 87.5 },
-    { no: 4, registerNumber: 'R004', totalHours: 160, hoursPresent: 160, attendance: 100 }
-  ];
-
-  let totalHoursPresent = 0;
-  let totalAttendance = 0;
-  const totalStudents = rowData.length;
-
-  rowData.forEach(row => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${row.no}</td>
-      <td>${row.registerNumber}</td>
-      <td>${row.totalHours}</td>
-      <td>${row.hoursPresent}</td>
-      <td>${row.attendance}%</td>
-    `;
-    tbody.appendChild(tr);
-
-    // Calculate the total hours present and attendance for averages
-    totalHoursPresent += row.hoursPresent;
-    totalAttendance += row.attendance;
-  });
-
-  // Calculate averages and update the average row at the bottom of the table
-  document.getElementById("avg-total-hours").textContent = (totalHoursPresent / totalStudents).toFixed(2);
-  document.getElementById("avg-hours-present").textContent = ((totalHoursPresent / (totalStudents * 160)) * 100).toFixed(2) + "%";
-  document.getElementById("avg-attendance").textContent = (totalAttendance / totalStudents).toFixed(2) + "%";
-
-  // Show the table after adding the rows
-  table.style.display = "table";
-  document.getElementById("monthly-classwise-print-btn").style.display = "block";
-});
-
-// Print functionality for generating a PDF
-document.getElementById("monthly-classwise-print-btn").addEventListener("click", function() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // Add the title to the PDF
-  doc.text("Monthly Attendance Report - Classwise", 10, 10);
-
-  // Add the class, semester, month, and year info above the table
-  const classInfo = document.getElementById("class-info").innerText;
-  doc.text(classInfo, 10, 20);
-
-  // Add the table details to the PDF
-  const table = document.getElementById("monthly-classwise-table");
-  doc.autoTable({ html: table });
-
-  // Save the PDF file
-  doc.save("monthly_classwise_report.pdf");
-});
-
-
-
-// JavaScript to handle form submission, table display, and PDF generation for Semesterly Studentwise
-document.getElementById("semesterly-student-form").addEventListener("submit", function(event) {
-  event.preventDefault();
-
-  // Get the selected values
-  const semester = document.querySelector('[name="semester"]').value;
-  const registration = document.querySelector('[name="registration"]').value;
-
-  // Format the current date as DD-MM-YYYY
-  const currentDate = new Date();
-  const day = ("0" + currentDate.getDate()).slice(-2);
-  const monthName = ("0" + (currentDate.getMonth() + 1)).slice(-2);
-  const yearFormatted = currentDate.getFullYear();
-  const formattedDate = `${day}-${monthName}-${yearFormatted}`;
-
-  // Set the details above the table
-  const semesterlyStudentInfo = `
-    <strong>Registration Number:</strong> ${registration} <br>
-    <strong>Semester:</strong> ${semester} <br>
-    <strong>Date:</strong> ${formattedDate}
-  `;
-  document.getElementById("semesterly-student-info").innerHTML = semesterlyStudentInfo;
-  document.getElementById("semesterly-student-details").style.display = "block";
-
-  // Show the table (normally you would fetch data here, but for now, we simulate it)
-  const table = document.getElementById("semesterly-studentwise-table");
-  const tbody = table.querySelector("tbody");
-  tbody.innerHTML = ""; // Clear any existing rows
-
-  // Simulate dynamic data
-  const rowData = [
-    { month: "January", totalHours: 160, hoursPresent: 155, attendance: "96.87%" },
-    { month: "February", totalHours: 160, hoursPresent: 150, attendance: "93.75%" },
-  ];
-
-  rowData.forEach(row => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${row.month}</td>
-      <td>${row.totalHours}</td>
-      <td>${row.hoursPresent}</td>
-      <td>${row.attendance}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  table.style.display = "table"; // Show the table
-  document.getElementById("semesterly-print-btn").style.display = "block"; // Show the print button
-});
-
-// Print functionality to generate PDF for Semesterly Studentwise
-document.getElementById("semesterly-print-btn").addEventListener("click", function() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // Add title and table details
-  doc.text("Semesterly Attendance Report", 10, 10);
-  const table = document.getElementById("semesterly-studentwise-table");
-  doc.autoTable({ html: table });
-
-  // Save the PDF
-  doc.save("semesterly_attendance_report.pdf");
-});
-
-// JavaScript to handle form submission, table display, and PDF generation for Semesterly Classwise
-document.getElementById("semesterly-classwise-form").addEventListener("submit", function(event) {
-  event.preventDefault();  // Prevent form from submitting normally
-
-  // Get the selected values
-  const year = document.querySelector('[name="year"]').value;
-  const className = document.querySelector('[name="class"]').value;
-  const semester = document.querySelector('[name="semester"]').value;
-
-  // Format the current date as DD-MM-YYYY
-  const currentDate = new Date();
-  const day = ("0" + currentDate.getDate()).slice(-2);
-  const monthName = ("0" + (currentDate.getMonth() + 1)).slice(-2);
-  const yearFormatted = currentDate.getFullYear();
-  const formattedDate = `${day}-${monthName}-${yearFormatted}`;
-
-  // Set the details above the table
-  const semesterInfo = `
-    <strong>Class:</strong> ${className} <br>
-    <strong>Semester:</strong> ${semester} <br>
-    <strong>Year:</strong> ${year} <br>
-    <strong>Date:</strong> ${formattedDate}
-  `;
-  document.getElementById("semester-info").innerHTML = semesterInfo;
-
-  // Fetch the table and body
-  const table = document.getElementById("semesterly-classwise-table");
-  const tbody = table.querySelector("tbody");
-  tbody.innerHTML = ""; // Clear any existing rows
-
-  // Simulated data (replace with real data from API/backend)
-  const rowData = [
-    { no: 1, registerNumber: 'R001', totalHours: 320, hoursPresent: 300, attendance: 93.75 },
-    { no: 2, registerNumber: 'R002', totalHours: 320, hoursPresent: 310, attendance: 96.87 },
-    { no: 3, registerNumber: 'R003', totalHours: 320, hoursPresent: 290, attendance: 90.62 },
-    { no: 4, registerNumber: 'R004', totalHours: 320, hoursPresent: 320, attendance: 100 }
-  ];
-
-  let totalHoursPresent = 0;
-  let totalAttendance = 0;
-  const totalStudents = rowData.length;
-
-  rowData.forEach(row => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${row.no}</td>
-      <td>${row.registerNumber}</td>
-      <td>${row.totalHours}</td>
-      <td>${row.hoursPresent}</td>
-      <td>${row.attendance}%</td>
-    `;
-    tbody.appendChild(tr);
-
-    // Calculate the total hours present and attendance for averages
-    totalHoursPresent += row.hoursPresent;
-    totalAttendance += row.attendance;
-  });
-
-  // Calculate averages and update the average row at the bottom of the table
-  document.getElementById("avg-total-hours-semester").textContent = (totalHoursPresent / totalStudents).toFixed(2);
-  document.getElementById("avg-hours-present-semester").textContent = ((totalHoursPresent / (totalStudents * 320)) * 100).toFixed(2) + "%";
-  document.getElementById("avg-attendance-semester").textContent = (totalAttendance / totalStudents).toFixed(2) + "%";
-
-  // Show the table after adding the rows
-  table.style.display = "table";
-  document.getElementById("semesterly-classwise-print-btn").style.display = "block";
-});
-
-// Print functionality for generating a PDF
-document.getElementById("semesterly-classwise-print-btn").addEventListener("click", function() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // Add the title to the PDF
-  doc.text("Semesterly Attendance Report - Classwise", 10, 10);
-
-  // Add the class, semester, year info above the table
-  const semesterInfo = document.getElementById("semester-info").innerText;
-  doc.text(semesterInfo, 10, 20);
-
-  // Add the table details to the PDF
-  const table = document.getElementById("semesterly-classwise-table");
-  doc.autoTable({ html: table });
-
-  // Save the PDF file
-  doc.save("semesterly_classwise_report.pdf");
-});
-
-
-  </script>
+        // Semester-based Attendance handling can be added here, similar to the monthly handling.
+    </script>
 </body>
 </html>

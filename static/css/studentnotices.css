@@ -53,6 +53,11 @@ button[type="submit"] {
 button[type="submit"]:hover {
     background-color: #45a049;
 }
+button[type="submit"]:hover {
+    background-color: #2aee34;
+    transform: scale(1.05);
+}
+
 
 table {
     width: 100%;
@@ -222,3 +227,77 @@ body.dark .attachment-link {
 body.dark .attachment-link:hover {
     color: #66ccff; /* Lighter blue on hover */
 }
+
+
+/* Go Back Button Styles */
+.go-home-btn {
+    background-color: #f44336; /* Red background */
+    color: white; /* White text */
+    padding: 10px 20px; /* Some padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    font-size: 16px; /* Adjust text size */
+    display: flex; /* Align icon and text */
+    align-items: center; /* Center vertically */
+    gap: 8px; /* Space between icon and text */
+     /* Fixed position on screen */
+    bottom: 20px; /* 20px from the bottom */
+    right: 100px; /* 100px from the right */
+    z-index: 1000; /* Ensure it's above other elements */
+    margin-top: 50px;
+  }
+  
+  /* Icon size and color */
+  .go-home-btn i {
+    font-size: 18px;
+  }
+  
+  /* Dark Theme Styles */
+  body.dark .go-home-btn {
+    background-color: #4a4392; /* Dark background */
+    color: #f44336; /* Red text */
+  }
+  
+  body.dark .go-home-btn i {
+    color: #f44336; /* Red icon */
+  }
+  
+  /* Light Theme Styles */
+  body.light .go-home-btn {
+    background-color: #f44336; /* Red background */
+    color: white; /* White text */
+  }
+  
+  body.light .go-home-btn i {
+    color: white; /* White icon */
+  }
+  
+  /* Hover Effects */
+  .go-home-btn:hover {
+    background-color: #44ed2a; /* Darker red on hover */
+    color: #f43636;
+    font-weight: bold;
+    i {
+      color: #f43636;
+    }
+  }
+  
+  body.dark .go-home-btn:hover {
+    background-color: #fe0505; /* Darker red on hover (dark theme) */
+    color: #36f452;
+    font-weight: bold;
+    i {
+      color: #36f452;
+    }
+  }
+  
+  body.light .go-home-btn:hover {
+    background-color: #2f9fd3; /* Darker red on hover (light theme) */
+    color: #f43636;
+    font-weight: bold;
+    i {
+      color: #f43636;
+    }
+  }
+  

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import BatchTable, CourseTable, DepartmentsTable, LeaveApplicationTable, LocationTable, LoginTable, NotesTable, SemesterTable, StudentNoticeTable, SubjectsTable, TeacherNoticeTable, TimeTableTable
+from .models import BatchTable, CollegeDetailsTable, CourseTable, DepartmentsTable, LeaveApplicationTable, LocationTable, LoginTable, NotesTable, PasswordResetOTP, RegistrationOTP, SemesterTable, StudentNoticeTable, SubjectsTable, TeacherNoticeTable, TimeTableTable
 from .models import TeacherTable
 from .models import StudentTable
 from .models import ClassTable
@@ -22,3 +22,6 @@ admin.site.register(StudentNoticeTable)
 admin.site.register(TeacherNoticeTable)
 admin.site.register(DepartmentsTable)
 admin.site.register(CourseTable)
+admin.site.register(CollegeDetailsTable)
+admin.site.register(PasswordResetOTP)
+admin.site.register(RegistrationOTP)

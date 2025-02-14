@@ -1,4 +1,10 @@
+from datetime import timedelta
 from django.db import models
+from django.contrib.auth.models import User
+from django.utils.timezone import now
+import random
+
+
 
 # User login table
 class LoginTable(models.Model):
@@ -10,25 +16,76 @@ class LoginTable(models.Model):
     ]
     
     Username = models.CharField(max_length=50, unique=True, null=True, blank=True)
-    Password = models.CharField(max_length=50, null=True, blank=True)
+    Password = models.CharField(max_length=128, null=True, blank=True)
+    Email = models.EmailField(unique=True, null=True, blank=True)  # Add this field
     Type = models.CharField(max_length=50, choices=UType, null=True, blank=True)
     status = models.CharField(max_length=50, null=True, blank=True)
 
 
 
+class PasswordResetOTP(models.Model):
+    Username = models.ForeignKey(LoginTable, on_delete=models.CASCADE,null=True, blank=True)
+    otp = models.CharField(max_length=6)  # 6-digit OTP
+    created_at = models.DateTimeField(auto_now_add=True)  # OTP created time
+    is_used = models.BooleanField(default=False)  # Track if OTP is used
+
+    def is_expired(self):
+        """ Check if OTP is expired (valid for 5 minutes) """
+        return (now() - self.created_at).total_seconds() > 300  # 5 minutes (300 sec)
+
+
+class RegistrationOTP(models.Model):
+    Email = models.EmailField(unique=True, null=True, blank=True)  # Store email temporarily
+    otp = models.CharField(max_length=6)  # 6-digit OTP
+    created_at = models.DateTimeField(auto_now_add=True)  # OTP timestamp
+    is_used = models.BooleanField(default=False)  # Track if OTP is used
+
+    def is_expired(self):
+        return (now() - self.created_at).total_seconds() > 120  # Expires in 2 minutes
+
+    def __str__(self):
+        return f"{self.Email} - OTP: {self.otp} - Used: {self.is_used}"
+
+
 #department details table
+# Subject details table
+class SubjectsTable(models.Model): 
+    Subject_code = models.CharField(max_length=50, null=True, blank=True)
+    SubjectName = models.CharField(max_length=50, null=True, blank=True)
+    Department = models.ForeignKey('DepartmentsTable', on_delete=models.CASCADE, null=True, blank=True)
+    Course = models.ForeignKey('CourseTable', on_delete=models.CASCADE, null=True, blank=True)
+    Year_of_Syllabus = models.CharField(max_length=50, null=True, blank=True)
+    Semester = models.ForeignKey('SemesterTable', on_delete=models.CASCADE, null=True, blank=True)
+    
+def __str__(self):
+        return self.SubjectName
+    
+# Course details table
+class CourseTable(models.Model):
+    CourseName = models.CharField(max_length=50, null=True, blank=True)
+    Department = models.ForeignKey('DepartmentsTable', on_delete=models.CASCADE, null=True, blank=True)
+    CourseDuration = models.CharField(max_length=50, null=True, blank=True)
+    CourseDescription = models.CharField(max_length=500, null=True, blank=True)
+    CourseCode = models.CharField(max_length=50, null=True, blank=True)
+
+# Semester details table
+class SemesterTable(models.Model):
+    Semester = models.CharField(max_length=50, null=True, blank=True)
+    StartDate = models.DateField(null=True, blank=True)
+    EndDate = models.DateField(null=True, blank=True)
+
+# Department details table
 class DepartmentsTable(models.Model):
     department_id = models.IntegerField(null=False, blank=False)
     Department = models.CharField(max_length=50, null=True, blank=True)
-    CourseName = models.ForeignKey('CourseTable', on_delete=models.CASCADE, null=True, blank=True)
+    
 # Teacher details table
 class TeacherTable(models.Model):
     Department = models.ForeignKey(DepartmentsTable, on_delete=models.CASCADE, null=True, blank=True)
-    SubjectName = models.ForeignKey('SubjectsTable', on_delete=models.CASCADE, null=True, blank=True)
+    SubjectName = models.ManyToManyField('SubjectsTable', related_name='teachers', blank=True)
     LOGIN = models.ForeignKey(LoginTable, on_delete=models.CASCADE, null=True, blank=True)
     TeacherName = models.CharField(max_length=50, null=True, blank=True)
     Gender = models.CharField(max_length=50, null=True, blank=True)
-    
     Phone_number = models.BigIntegerField(null=True, blank=True)
     Email = models.CharField(max_length=50, null=True, blank=True)
     Qualification = models.CharField(max_length=50, null=True, blank=True)
@@ -40,16 +97,9 @@ class BatchTable(models.Model):
     BatchYear = models.CharField(max_length=50, null=True, blank=True)
     BatchStartYear = models.CharField(max_length=50, null=True, blank=True)
     BatchEndYear = models.CharField(max_length=50, null=True, blank=True)
+    Semester = models.ForeignKey('SemesterTable', on_delete=models.CASCADE, null=True, blank=True)
     
     
-
-# Semester details table
-class SemesterTable(models.Model):
-    BatchName = models.ForeignKey(BatchTable, on_delete=models.CASCADE, null=True, blank=True)
-    Semester = models.CharField(max_length=50, null=True, blank=True)
-    StartDate = models.DateField(null=True, blank=True)
-    EndDate = models.DateField(null=True, blank=True)
-
 # Class information table
 class ClassTable(models.Model):
     Department = models.ForeignKey(DepartmentsTable, on_delete=models.CASCADE, null=True, blank=True)
@@ -57,12 +107,14 @@ class ClassTable(models.Model):
     ClassName = models.CharField(max_length=50, null=True, blank=True)
     Latitude = models.CharField(max_length=50, null=True, blank=True)
     Longitude = models.CharField(max_length=50, null=True, blank=True)
-    Location_name = models.CharField(max_length=50, null=True, blank=True)    
+    Location_name = models.CharField(max_length=50, null=True, blank=True) 
+    Radius = models.IntegerField(null=True, blank=True)
     Year = models.CharField(max_length=50, null=True, blank=True)
     Semester = models.ForeignKey(SemesterTable, on_delete=models.CASCADE, null=True, blank=True)
 
 # Student information table
 class StudentTable(models.Model):
+    Register_no = models.CharField(max_length=50, null=True, blank=True)
     Department = models.ForeignKey(DepartmentsTable, on_delete=models.CASCADE, null=True, blank=True)
     Semester = models.ForeignKey(SemesterTable, on_delete=models.CASCADE, null=True, blank=True)
     LOGIN = models.ForeignKey(LoginTable, on_delete=models.CASCADE, null=True, blank=True)
@@ -91,40 +143,43 @@ class AttendanceTable(models.Model):
     Attendance = models.IntegerField(null=True, blank=True)
 
 
-# Subject details table
-class SubjectsTable(models.Model): 
-    Subject_code = models.CharField(max_length=50, null=True, blank=True)
-    SubjectName = models.CharField(max_length=50, null=True, blank=True)
-    Department = models.ForeignKey(DepartmentsTable, on_delete=models.CASCADE, null=True, blank=True)
-    Course = models.ForeignKey('CourseTable', on_delete=models.CASCADE, null=True, blank=True)
-    Year_of_Syllabus = models.DateField(null=True, blank=True)
-    Semester = models.ForeignKey(SemesterTable, on_delete=models.CASCADE, null=True, blank=True)
-    
-    
-#course details table
-class CourseTable(models.Model):
-    CourseName = models.CharField(max_length=50, null=True, blank=True)
-    Department = models.ForeignKey(DepartmentsTable, on_delete=models.CASCADE, null=True, blank=True)
-
 # Class timetable table
 
 
+# Timetable Entry
 class TimeTableTable(models.Model):
-    ClassName = models.ForeignKey(ClassTable, on_delete=models.CASCADE, null=True, blank=True)
-    SubjectName = models.ForeignKey(SubjectsTable, on_delete=models.CASCADE, null=True, blank=True)
-    Day = models.CharField(max_length=10, null=True, blank=True)
-    Period = models.CharField(max_length=20, null=True, blank=True)
-    StartTime = models.TimeField(max_length=50, null=True, blank=True)
-    EndTime = models.TimeField(max_length=50, null=True, blank=True)
-    TeacherName = models.ForeignKey(TeacherTable, on_delete=models.CASCADE, null=True, blank=True)
-    # No custom methods like __str__ here
+    DAYS_OF_WEEK = [
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),  # Added Saturday
+    ]
+
+    ClassName = models.ForeignKey('ClassTable', on_delete=models.CASCADE, null=True, blank=True)
+    SubjectName = models.ForeignKey('SubjectsTable', on_delete=models.CASCADE, null=True, blank=True)
+    TeacherName = models.ForeignKey('TeacherTable', on_delete=models.SET_NULL, null=True, blank=True)
+    day = models.CharField(choices=DAYS_OF_WEEK, max_length=9 , null=True, blank=True)
+    period = models.PositiveIntegerField(null=True, blank=True)  # E.g., 1st period, 2nd period, etc.
+    start_time = models.TimeField( null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('ClassName', 'day', 'period')  # Prevents duplicate entries for the same class/period/day
+
+    def __str__(self):
+        return f"{self.ClassName} - {self.SubjectName} - {self.TeacherName} ({self.day}, Period {self.period})"
+
 
 
 # Geographic location table
 class LocationTable(models.Model):
-    latitude = models.CharField(max_length=50, null=True, blank=True)
-    longitude = models.CharField(max_length=50, null=True, blank=True)
-    Location_name = models.CharField(max_length=50, null=True, blank=True)
+    location_name = models.CharField(max_length=255, null=True, blank=True)
+    polygon_coordinates = models.JSONField(null=True, blank=True)  # Stores multiple lat/lng points as JSON
+
+    def __str__(self):
+        return self.location_name
 
 
 # Study notes table
@@ -142,12 +197,18 @@ class LeaveApplicationTable(models.Model):
     Reason = models.CharField(max_length=50, null=True, blank=True)
     Status = models.CharField(max_length=50, null=True, blank=True)
 
-# Student notices table
-
 
 # Student Notices Table
 class StudentNoticeTable(models.Model):
+    NTYPE = (
+        ('HN', 'Holiday Notice'),
+        ('EN', 'Exam Notice'),
+        ('FN', 'Function Notice'),
+        ('ON', 'Other Notice'),
+    )
+    
     Notice_name = models.CharField(max_length=200, null=True, blank=True)
+    Notice_Type = models.CharField(max_length=100,null=True, blank=True ,choices=NTYPE)
     Notice_Content = models.TextField(max_length=1000, null=True, blank=True)
     File_Attachment = models.FileField(upload_to='notices/', null=True, blank=True)
     BatchName = models.ManyToManyField(BatchTable,)  # Many-to-many relationship
@@ -162,18 +223,20 @@ class TeacherNoticeTable(models.Model):
     NoticeContent = models.CharField(max_length=50, null=True, blank=True)
     Date = models.DateField(auto_now_add=True, null=True, blank=True)
     FileAttachment = models.FileField(upload_to='File/', null=True, blank=True)
-    Department = models.ForeignKey(DepartmentsTable, on_delete=models.CASCADE, null=True, blank=True)
+    Department = models.ManyToManyField(DepartmentsTable,)
 
     def __str__(self):
         return self.NoticeName
     
 
 class CollegeDetailsTable(models.Model):
-    name = models.CharField(max_length=255, null=False, blank=False)
-    email = models.EmailField(null=False, blank=False)
-    phone_number = models.CharField(max_length=15, null=False, blank=False)
-    principal_name = models.CharField(max_length=255, null=False, blank=False)
-    principal_contact = models.CharField(max_length=15, null=False, blank=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,default=1)  # link to the User model
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=15)
+    principal_name = models.CharField(max_length=100)
+    principal_contact = models.CharField(max_length=15)
+    # other fields...
 
     def __str__(self):
         return self.name

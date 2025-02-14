@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Locations</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+</head>
+<body>
+    <h2>Class Locations</h2>
+
+    <!-- Add Class Location Form -->
+    <form id="location-form" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add">
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+        
+        <label for="class_name">Class Name:</label>
+        <input type="text" name="class_name" id="class_name" required><br>
+
+        <label for="location_name">Location Name:</label>
+        <input type="text" name="location_name" id="location_name" required><br>
+
+        <label for="year">Year:</label>
+        <input type="text" name="year" id="year" required><br>
+
+        <label for="semester">Semester:</label>
+        <select name="semester" id="semester">
+            {% for semester in semesters %}
+                <option value="{{ semester.id }}">{{ semester.name }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="department">Department:</label>
+        <select name="department" id="department">
+            {% for department in departments %}
+                <option value="{{ department.id }}">{{ department.name }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="teacher">Teacher:</label>
+        <select name="teacher" id="teacher">
+            {% for teacher in teachers %}
+                <option value="{{ teacher.id }}">{{ teacher.name }}</option>
+            {% endfor %}
+        </select><br>
+
+        <button type="submit">Add Location</button>
+    </form>
+
+    <!-- Map Display -->
+    <h3>Select Location on the Map:</h3>
+    <div id="map" style="width: 100%; height: 400px;"></div>
+
+    <hr>
+    
+    <!-- List of Class Locations -->
+    <h3>Existing Class Locations</h3>
+    {% for location in locations %}
+        <div class="location" data-id="{{ location.id }}" data-lat="{{ location.Latitude }}" data-lng="{{ location.Longitude }}">
+            <h4>{{ location.ClassName }}</h4>
+            <p>{{ location.Location_name }} ({{ location.Year }})</p>
+            <button onclick="editLocation({{ location.id }})">Edit</button>
+            <button onclick="deleteLocation({{ location.id }})">Delete</button>
+        </div>
+    {% endfor %}
+
+    <script>
+        var map;
+        var marker;
+        var currentLocation = { lat: 0, lng: 0 };  // Default location
+
+        // Initialize map
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 15,
+                center: currentLocation  // Default center
+            });
+
+            marker = new google.maps.Marker({
+                position: currentLocation,
+                map: map,
+                draggable: true
+            });
+
+            google.maps.event.addListener(marker, 'dragend', function() {
+                var position = marker.getPosition();
+                document.getElementById('latitude').value = position.lat();
+                document.getElementById('longitude').value = position.lng();
+            });
+
+            // Try to use device's GPS to center the map
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var userLat = position.coords.latitude;
+                    var userLng = position.coords.longitude;
+                    currentLocation = { lat: userLat, lng: userLng };
+                    map.setCenter(currentLocation);
+                    marker.setPosition(currentLocation);
+                });
+            }
+        }
+
+        // Edit location
+        function editLocation(locationId) {
+            var location = document.querySelector(`.location[data-id="${locationId}"]`);
+            var lat = location.dataset.lat;
+            var lng = location.dataset.lng;
+
+            // Set the map view and marker position for update
+            map.setCenter({ lat: lat, lng: lng });
+            marker.setPosition({ lat: lat, lng: lng });
+
+            // Fill out the form with existing data
+            document.getElementById('class_name').value = location.querySelector('h4').textContent;
+            document.getElementById('location_name').value = location.querySelector('p').textContent;
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            document.getElementById('semester').value = location.dataset.semesterId;
+            document.getElementById('department').value = location.dataset.departmentId;
+            document.getElementById('teacher').value = location.dataset.teacherId;
+
+            // Change the action to 'update' and set the class_id
+            document.querySelector('input[name="action"]').value = "update";
+            document.querySelector('input[name="class_id"]').value = locationId;
+        }
+
+        // Delete location
+        function deleteLocation(locationId) {
+            if (confirm("Are you sure you want to delete this location?")) {
+                var formData = new FormData();
+                formData.append('action', 'delete');
+                formData.append('class_id', locationId);
+
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();  // Reload the page to reflect the deletion
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>

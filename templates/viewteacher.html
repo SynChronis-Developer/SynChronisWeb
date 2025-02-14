@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>View Teacher</title>
-    <link rel="stylesheet" href="{% static 'css/viewteacherpage.css' %}">
+    <link rel="stylesheet" href="{% static 'css/viewteacher.css' %}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body class="viewteacher">
@@ -36,9 +36,13 @@
             <tr>
                 <td>{{ i.id }}</td>
                 <td>{{ i.TeacherName }}</td>
-                <td>{{ i.SubjectName }}</td>
+                <td><ul>
+                {%for subject in i.SubjectName.all%}
+                <li>{{ subject.SubjectName }}</li>
+                {%endfor%}
+                </ul></td>
                 <td>{{ i.Gender }}</td>
-                <td>{{ i.Department }}</td>
+                <td>{{ i.Department.Department }}</td>
                 <td>{{ i.Phone_number }}</td>
                 <td>{{ i.Email }}</td>
                 <td>{{ i.Qualification }}</td>

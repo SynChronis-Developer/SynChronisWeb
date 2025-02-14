@@ -1,0 +1,158 @@
+{% load static %}
+<html lang="en">
+<head>
+    <!-- Include Leaflet and the Search plugin -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <style>
+        #map { width: 100%; height: 500px; }
+        #coordinates-display { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Set Class Location and Radius</h2>
+
+    <!-- Add Class Location Form -->
+    <form id="location-form" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+        <input type="hidden" name="radius" id="radius">
+
+        <select name="class_name" id="class_name" required>
+            <option value="Select Class">Select Class</option>
+            {% for class in classesl %}
+                <option value="{{ class.id }}">{{ class.ClassName }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="location_name"></label>
+        <input type="text" name="location_name" id="location_name" required placeholder="Location Name"><br>
+
+        <label for="radius_input">Radius (in meters):</label><br>
+        <input type="number" name="radius_input" id="radius_input" min="1" max="5000" value="100" required><br>
+
+        <button type="submit">Add Location</button>
+    </form>
+
+    <!-- Map Display -->
+    <div id="map"></div>
+
+    <!-- Display Current Coordinates -->
+    <div id="coordinates-display">
+        <h3>Current Coordinates:</h3>
+        <p id="current-coordinates">Latitude: N/A, Longitude: N/A</p>
+    </div>
+
+    <script>
+        let map, currentMarker, currentCircle;
+
+        // Function to initialize the map after geolocation is obtained
+        function initializeMap(lat, lng) {
+            map = L.map('map').setView([lat, lng], 15); // Set map to current location
+
+            // Add OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Add search control
+            L.Control.geocoder({
+                defaultMarkGeocode: false
+            })
+            .on('markgeocode', function(e) {
+                var latlng = e.geocode.center;
+                updateMapLocation(latlng);
+            })
+            .addTo(map);
+
+            // Add marker and circle at current location
+            currentMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            currentCircle = L.circle([lat, lng], { radius: 100 }).addTo(map);
+
+            // Event listener for marker drag
+            currentMarker.on('dragend', function() {
+                var position = currentMarker.getLatLng();
+                updateMapLocation(position);
+            });
+
+            // Update hidden fields and display initial coordinates
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            updateCoordinatesDisplay({ lat, lng });
+        }
+
+        // Get the user's current location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const { latitude, longitude } = position.coords;
+                    initializeMap(latitude, longitude); // Initialize map with user's current location
+                },
+                function(error) {
+                    // Handle errors
+                    alert("Unable to retrieve location: " + error.message);
+                    initializeMap(12.0, 75.0); // Default to Kasargod if location fails
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by this browser.');
+            initializeMap(12.0, 75.0); // Default to Kasargod if geolocation is unavailable
+        }
+
+        // Update the map, marker, and circle
+        function updateMapLocation(latlng) {
+            map.setView(latlng, 15);
+            currentMarker.setLatLng(latlng);
+            currentCircle.setLatLng(latlng);
+
+            document.getElementById('latitude').value = latlng.lat;
+            document.getElementById('longitude').value = latlng.lng;
+            updateCoordinatesDisplay(latlng);
+        }
+
+        // Update the circle radius dynamically
+        document.getElementById('radius_input').addEventListener('input', function() {
+            var newRadius = this.value;
+            currentCircle.setRadius(newRadius);
+            document.getElementById('radius').value = newRadius;
+        });
+
+        // Update coordinates display
+        function updateCoordinatesDisplay(location) {
+            document.getElementById('current-coordinates').innerHTML =
+                "Latitude: " + location.lat.toFixed(6) + ", Longitude: " + location.lng.toFixed(6);
+        }
+
+        // Handle form submission
+        document.getElementById('location-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+            fetch('/save_class_location/', {  // Use the correct URL path
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Class location added successfully!');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+        });
+    </script>
+</body>
+</html>

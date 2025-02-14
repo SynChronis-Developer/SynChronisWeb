@@ -1,21 +1,23 @@
 from django import forms
 from django.forms import ModelForm
 
-from SynChronisApp.models import BatchTable, ClassTable, CollegeDetailsTable, CourseTable, LeaveApplicationTable, LocationTable, LoginTable, NotesTable, StudentNoticeTable, StudentTable, SubjectsTable, TeacherNoticeTable, TeacherTable, TimeTableTable
+from SynChronisApp.models import BatchTable, ClassTable, CollegeDetailsTable, CourseTable, DepartmentsTable, LeaveApplicationTable, LocationTable, LoginTable, NotesTable, StudentNoticeTable, StudentTable, SubjectsTable, TeacherNoticeTable, TeacherTable, TimeTableTable
 
 
 class LocationForm(ModelForm):
     class Meta:
         model = LocationTable
-        fields = ['Location_name', 'latitude', 'longitude']
+        fields = ['location_name', 'polygon_coordinates']
         
-class TimeTableForm(forms.ModelForm):
+class TimetableEntryForm(forms.ModelForm):
     class Meta:
         model = TimeTableTable
-        fields = ['Day', 'Period', 'ClassName', 'SubjectName', 'TeacherName', 'StartTime', 'EndTime']
-    
-    # Optionally, you can add a custom queryset to get only active teachers
-    TeacherName = forms.ModelChoiceField(queryset=TeacherTable.objects.all(), empty_label="Select a Teacher")
+        fields = ['SubjectName', 'TeacherName', 'ClassName', 'day', 'period', 'start_time', 'end_time']
+        widgets = {
+            'start_time': forms.TimeInput(attrs={'type': 'time'}),
+            'end_time': forms.TimeInput(attrs={'type': 'time'}),
+        }
+
         
 class ClassForm(ModelForm):
     class Meta:
@@ -25,7 +27,7 @@ class ClassForm(ModelForm):
 class TeacherForm(ModelForm):
     class Meta:
         model = TeacherTable
-        fields = ['TeacherName', 'Gender', 'SubjectName','Qualification','Email', 'Phone_number',]
+        fields = ['TeacherName', 'Gender', 'SubjectName','Qualification','Email', 'Phone_number']
         
 class SubjectsForm(ModelForm):
     class Meta:
@@ -53,11 +55,11 @@ class StudentNoticeForm(forms.ModelForm):
         fields = ['Notice_name', 'Notice_Content', 'File_Attachment', 'BatchName']
 
     BatchName = forms.ModelMultipleChoiceField(queryset=BatchTable.objects.all(), widget=forms.CheckboxSelectMultiple)
+    
 class TeacherNotificationForm(ModelForm):
     class Meta:
         model = TeacherNoticeTable
-        fields =[ 'NoticeContent', 'NoticeName',  'FileAttachment',]
-        
+        fields =[ 'NoticeContent', 'NoticeName',  'FileAttachment']
 
 class LeaveApplicationForm(ModelForm):
     class Meta:
@@ -74,15 +76,24 @@ class BatchForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['ClassName'].queryset = ClassTable.objects.all()
 
-
-    # Dynamically populate students when ClassName is selected
-    
 class CollegeDetailsForm(forms.ModelForm):
     class Meta:
         model = CollegeDetailsTable
         fields = ['name', 'email', 'phone_number', 'principal_name', 'principal_contact']
         
-class CourseForm(ModelForm):
-    class meta:
+class CourseForm(forms.ModelForm):
+    class Meta:
         model = CourseTable
-        fields = ['CourseName', 'Department']
+        fields = ['CourseName', 'Department', 'CourseDuration', 'CourseDescription', 'CourseCode']
+
+
+class DepartmentForm(ModelForm):
+    class Meta:
+        model = DepartmentsTable
+        fields = ['Department', 'department_id',]  # Assuming you have a related field for CollegeDetails
+
+
+class SubjectForm(forms.ModelForm):
+    class Meta:
+        model = SubjectsTable
+        fields = ['SubjectName', 'Course', 'Semester', 'Year_of_Syllabus', 'Subject_code', 'Department']

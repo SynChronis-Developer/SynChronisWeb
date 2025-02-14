@@ -7,8 +7,8 @@ body.viewteacher {
 }
 
 body.viewteacher.dark {
-  background-color: #1b1b1b;
-  color: #f1f1f1;
+  background-color: #2e2a47; /* Dark background */
+  color: #f1f1f1; /* Light text */
 }
 
 /* Theme Toggle Button */
@@ -16,7 +16,7 @@ body.viewteacher.dark {
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #ff9800;
+  background-color: #ff9800; /* Yellow */
   color: #fff;
   border: none;
   padding: 15px;
@@ -27,7 +27,7 @@ body.viewteacher.dark {
 }
 
 body.viewteacher.dark .theme-toggle-btn {
-  background-color: #ff5722;
+  background-color: #2196f3; /* Blue */
 }
 
 .theme-toggle-btn i {
@@ -35,26 +35,26 @@ body.viewteacher.dark .theme-toggle-btn {
 }
 
 .theme-toggle-btn:hover {
-  background-color: #ff5722;
+  background-color: #1976d2; /* Darker Blue */
 }
 
 body.viewteacher.dark .theme-toggle-btn:hover {
-  background-color: #e64a19;
+  background-color: #1565c0; /* Even Darker Blue */
 }
 
 /* Header Styling */
 header {
-  background: linear-gradient(90deg, #4caf50, #81c784);
+  background: linear-gradient(90deg, #2196f3, #1976d2); /* Blue */
   padding: 30px;
   text-align: center;
   color: #fff;
-  border-bottom: 5px solid #ff9800;
+  border-bottom: 5px solid #ff9800; /* Yellow */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 body.viewteacher.dark header {
-  background: linear-gradient(90deg, #2e7d32, #388e3c);
-  border-bottom: 5px solid #e64a19;
+  background: linear-gradient(90deg, #1c2331, #3f4c5c); /* Darker blue tones */
+  border-bottom: 5px solid #ff9800; /* Yellow */
 }
 
 /* Main Table Styling */
@@ -70,16 +70,16 @@ body.viewteacher.dark header {
 }
 
 body.viewteacher.dark #viewteacher-table {
-  background: #333;
+  background: #333; /* Dark gray */
 }
 
 #viewteacher-table thead {
-  background: #4caf50;
+  background: #29cff8; /* Yellow */
   color: #fff;
 }
 
 body.viewteacher.dark #viewteacher-table thead {
-  background: #2e7d32;
+  background: #ff9800; /* Yellow */
   color: #f1f1f1;
 }
 
@@ -92,16 +92,16 @@ body.viewteacher.dark #viewteacher-table thead {
 
 body.viewteacher.dark #viewteacher-table th, 
 body.viewteacher.dark #viewteacher-table td {
-  border-color: #444;
+  border-color: #444; /* Darker border for dark mode */
   color: #f1f1f1;
 }
 
 #viewteacher-table tr:hover {
-  background-color: #f1f1f1;
+  background-color: #f1f1f1; /* Light gray */
 }
 
 body.viewteacher.dark #viewteacher-table tr:hover {
-  background-color: #444;
+  background-color: #444; /* Darker gray */
 }
 
 /* Button Styling */
@@ -115,17 +115,17 @@ button {
 }
 
 .verify-button {
-  background: #4caf50;
+  background: #ff9800; /* Yellow */
   color: #fff;
 }
 
 .reject-button {
-  background: #f44336;
+  background: #f44336; /* Red */
   color: #fff;
 }
 
 .go-back-button {
-  background: #2196f3;
+  background: #2196f3; /* Blue */
   color: #fff;
 }
 
@@ -134,27 +134,27 @@ button:hover {
 }
 
 .verify-button:hover {
-  background: #388e3c;
+  background: #ff9800; /* Yellow */
 }
 
 .reject-button:hover {
-  background: #d32f2f;
+  background: #d32f2f; /* Dark red */
 }
 
 .go-back-button:hover {
-  background: #1976d2;
+  background: #1976d2; /* Blue */
 }
 
 body.viewteacher.dark .verify-button {
-  background: #388e3c;
+  background: #ff9800; /* Yellow for dark mode */
 }
 
 body.viewteacher.dark .reject-button {
-  background: #c62828;
+  background: #c62828; /* Dark red */
 }
 
 body.viewteacher.dark .go-back-button {
-  background: #1565c0;
+  background: #1565c0; /* Dark blue */
 }
 
 /* Responsive Design */

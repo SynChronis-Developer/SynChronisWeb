@@ -3,22 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="{% static 'css/location.css' %}">
+    <title>Geofencing Page</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your external CSS file -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/locationscss.css' %}">
 </head>
 <body>
-    <div class="form-container">
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label class="bb">Location name:</label>
-            <input type="text"class="input" name="Location_name"><br>
-            <label class="bb">Latitude     :</label>
-            <input type="text"class="input" name="latitude"><br>  
-            <label class="bb">Longitude    :</label>
-            <input type="text"class="input" name="longitude"><br>
-            <button type="submit">Add</button>        
-    </form>
-</div>
+    <header>
+        <h1>Geofencing</h1>
+    </header>
+
+    <div class="floating-background">
+        <div class="floating-object object-1"></div>
+        <div class="floating-object object-2"></div>
+        <div class="floating-object object-3"></div>
+        <div class="floating-object object-4"></div>
+    </div>
+
+
+    <!-- Theme toggle button -->
+    <button id="theme-toggle-btn" class="theme-toggle-btn" align="right">
+        <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+    </button>
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+
+    <div class="container">
+        <form method="POST" class="geofence-form">
+            {% csrf_token %}
+            <label for="location-name">Location Name:</label>
+            <input type="text" id="location-name" name="location_name" placeholder="Enter location name" class="input-field">
+        
+            <label for="geofence-coordinates">Geofencing Coordinates:</label>
+            <input type="text" id="geofence-coordinates" name="polygon_coordinates" placeholder="Enter coordinates" class="input-field" readonly>
+        
+            <button type="submit" id="save-geofence">Save Geofence</button>
+        </form>
+        
+        <div id="map" class="map"></div>
+    </div>
+
+    <footer>
+        <p>Leaflet | © OpenStreetMap contributors</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+    <!-- Internal JavaScript -->
+    <script>
+        // Default map center & zoom level
+        const defaultCoords = [51.505, -0.09];
+        const defaultZoom = 13;
+
+        // Initialize the map
+        const map = L.map('map').setView(defaultCoords, defaultZoom);
+
+        // Tile Layer for the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Group to hold drawn items
+        const drawnItems = new L.FeatureGroup().addTo(map);
+
+        // Initialize the Leaflet draw control
+        const drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems,
+                remove: true, // Allow users to delete shapes
+            },
+            draw: {
+                polygon: true,
+                polyline: false,
+                rectangle: false,
+                circle: false,
+                marker: false
+            }
+        });
+
+        map.addControl(drawControl);
+
+        // Handle drawing event
+        map.on('draw:created', function (e) {
+            const layer = e.layer;
+            drawnItems.addLayer(layer);
+
+            // Get the coordinates of the drawn layer (assuming polygon)
+            const coordinates = layer.getLatLngs();
+
+            // If it's a polygon, extract the lat/lng of the points
+            let geofenceCoordinates = [];
+            if (Array.isArray(coordinates)) {
+                geofenceCoordinates = coordinates[0].map(latlng => ({
+                    lat: latlng.lat,
+                    lng: latlng.lng
+                }));
+            }
+
+            // Update the geofence coordinates input field with JSON format
+            document.getElementById('geofence-coordinates').value = JSON.stringify(geofenceCoordinates);
+        });
+
+        // Save geofence data (currently just alerts)
+        document.getElementById('save-geofence').addEventListener('click', function () {
+            const locationName = document.getElementById('location-name').value;
+            const coordinates = document.getElementById('geofence-coordinates').value;
+
+            alert(`Geofence Saved!\nLocation: ${locationName}\nCoordinates: ${coordinates}`);
+        });
+
+        // Custom Leaflet control: My Location Button
+        L.control.locate = function () {
+            const control = L.control({ position: 'topleft' });
+
+            control.onAdd = function (map) {
+                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                container.innerHTML = '<button title="Go to My Location">📍</button>';
+                container.style.backgroundColor = 'white';
+                container.style.width = '40px';
+                container.style.height = '40px';
+                container.style.borderRadius = '5px';
+                container.style.boxShadow = '0px 2px 5px rgba(0,0,0,0.3)';
+                container.style.display = 'flex';
+                container.style.alignItems = 'center';
+                container.style.justifyContent = 'center';
+                container.style.cursor = 'pointer';
+
+                container.onclick = function () {
+                    map.locate({ setView: true, maxZoom: 16 });
+                };
+
+                return container;
+            };
+            return control;
+        };
+
+        L.control.locate().addTo(map);
+
+        // Custom Leaflet control: Reset Map Button
+        L.control.resetMap = function () {
+            const control = L.control({ position: 'topleft' });
+
+            control.onAdd = function (map) {
+                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                container.innerHTML = '<button title="Reset Map">🔄</button>';
+                container.style.backgroundColor = 'white';
+                container.style.width = '40px';
+                container.style.height = '40px';
+                container.style.borderRadius = '5px';
+                container.style.boxShadow = '0px 2px 5px rgba(0,0,0,0.3)';
+                container.style.display = 'flex';
+                container.style.alignItems = 'center';
+                container.style.justifyContent = 'center';
+                container.style.cursor = 'pointer';
+
+                container.onclick = function () {
+                    // Remove all drawn polygons
+                    drawnItems.clearLayers();
+                    // Reset map to default view
+                    map.setView(defaultCoords, defaultZoom);
+                    // Clear input fields
+                    document.getElementById('location-name').value = '';
+                    document.getElementById('geofence-coordinates').value = '';
+                };
+
+                return container;
+            };
+            return control;
+        };
+
+        L.control.resetMap().addTo(map);
+
+        // Geolocation success handler
+        map.on('locationfound', function (e) {
+            L.marker(e.latlng).addTo(map)
+                .bindPopup("You are here!").openPopup();
+        });
+
+        // Geolocation error handler
+        map.on('locationerror', function () {
+            alert("Location not found or permission denied.");
+        });
+
+    </script>
+
+    <div class="controls" align="center">
+        <!-- Button to redirect to the "Manage Class Location" page -->
+        <a href="{% url 'add_class_location' %}" class="btn-manage-location">
+            <button>Manage Class Location</button>
+        </a>
+    </div>
 </body>
 </html>

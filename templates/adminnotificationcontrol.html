@@ -1,61 +1,155 @@
 {% load static %}
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Notifications</title>
-  <link rel="stylesheet" href="{% static 'css/adminnotificationcontrol.css' %}">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="{% static 'css/adminnotification.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-<div class="content">
-  <div class="container">
-    <h1>Notifications</h1>
-    <div class="notification-split">
-      <!-- Teacher Notifications Section -->
-      <div class="notification-list teacher-notifications">
-        <h2>Teacher Notifications</h2>
-        <div class="notification-actions">
-          <!-- Link to Teacher Add Notice Page -->
-          <a href="{% url 'add_teacher_notice' %}">
-            <button id="add-teacher-notification-btn">Add New Teacher Notification</button>
-          </a>
-        </div>
-        <ul id="teacher-notification-list">
-          <!-- Teacher notifications will be listed here -->
-          {% for notice in teacher_notices %}
-            <li>
-              <h3>{{ notice.NoticeName }}</h3>
-              <p>{{ notice.NoticeContent }}</p>
-              {% if notice.FileAttachment %}
-                <a href="{{ notice.FileAttachment.url }}" target="_blank">Download Attachment</a>
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+  {% comment %} <!-- Floating Decorative Objects -->
+  <div class="floating-objects">
+    <div class="floating-object floating-object-1"></div>
+    <div class="floating-object floating-object-2"></div>
+    <div class="floating-object floating-object-3"></div>
+    <div class="floating-object floating-object-4"></div>
+  </div> {% endcomment %}
 
-      <!-- Student Notifications Section -->
-      <div class="notification-list student-notifications">
-        <h2>Student Notifications</h2>
-        <div class="notification-actions">
-          <!-- Link to Student Add Notice Page -->
-          <a href="{% url 'add_student_notice' %}">
-            <button id="add-student-notification-btn">Add New Student Notification</button>
-          </a>
+  <!-- Theme Toggle Button -->
+  <button id="theme-toggle-btn" class="theme-toggle-btn">
+    <i class="fa fa-sun"></i> <!-- Default light mode icon -->
+  </button>
+
+  <div class="content-wrapper">
+    <div class="container notification-container">
+      <h1 class="page-title">Notifications</h1>
+
+      <div class="notification-section">
+        <!-- Teacher Notifications -->
+        <div class="notification-list teacher-notifications">
+          <h2 class="notification-title">Teacher Notifications</h2>
+
+          <div class="notification-actions">
+            <a href="{% url 'add_teacher_notice' %}">
+              <button id="add-teacher-notification-btn" class="add-notification-btn">Add New Teacher Notification</button>
+            </a>
+          </div>
+
+          <ul class="notification-items" id="teacher-notification-list">
+            {% for notice in teacher_notices %}
+              <li class="notice-item teacher-notice" data-title="{{ notice.NoticeName }}" data-content="{{ notice.NoticeContent }}" data-date="{{ notice.Date }}">
+                <h3 class="notice-title">{{ notice.NoticeName }}</h3>
+                <p class="notice-content">{{ notice.NoticeContent }}</p>
+                <p class="notice-date">{{ notice.Date }}</p> <!-- Date Displayed -->
+                {% if notice.FileAttachment %}
+                  <a href="{{ notice.FileAttachment.url }}" target="_blank" class="notice-attachment">Download Attachment</a>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
         </div>
-        <ul id="student-notification-list">
-          <!-- Student notifications will be listed here -->
-          {% for notice in student_notices %}
-            <li>
-              <h3>{{ notice.Notice_name }}</h3>
-              <p>{{ notice.Notice_Content }}</p>
-              {% if notice.File_Attachment %}
-                <a href="{{ notice.File_Attachment.url }}" target="_blank">Download Attachment</a>
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
+
+        <!-- Student Notifications -->
+        <div class="notification-list student-notifications">
+          <h2 class="notification-title">Student Notifications</h2>
+
+          <div class="notification-actions">
+            <a href="{% url 'add_student_notice' %}">
+              <button id="add-student-notification-btn" class="add-notification-btn">Add New Student Notification</button>
+            </a>
+          </div>
+
+          <ul class="notification-items" id="student-notification-list">
+            {% for notice in student_notices %}
+              <li class="notice-item student-notice" data-title="{{ notice.Notice_name }}" data-content="{{ notice.Notice_Content }}" data-date="{{ notice.Date }}">
+                <h3 class="notice-title">{{ notice.Notice_name }}</h3>
+                <p class="notice-content">{{ notice.Notice_Content }}</p>
+                <p class="notice-date">{{ notice.Date }}</p> <!-- Date Displayed -->
+                {% if notice.File_Attachment %}
+                  <a href="{{ notice.File_Attachment.url }}" target="_blank" class="notice-attachment">Download Attachment</a>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- Modal for Notice Details -->
+  <div id="notice-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-btn" id="modal-close-btn">×</span>
+      <h2 id="modal-title" class="modal-title"></h2>
+      <p id="modal-content" class="modal-text"></p>
+      <p id="modal-date" class="modal-date"></p> <!-- Date in Modal -->
+    </div>
+  </div>
+
+  <!-- Go to Home Button -->
+<button id="go-home-btn" class="go-home-btn">Go to Home
+  <i class="fa fa-home"></i>
+</button>
+
+  <!-- External Scripts -->
+  <script src="{% static 'js/theme-switcher.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Hide the modal on page load (explicitly set it to none)
+      const modal = document.getElementById('notice-modal');
+      modal.style.display = 'none';
+
+      // Get all the notice items
+      const noticeItems = document.querySelectorAll('.notice-item');
+
+      // Add event listeners to each notice item
+      noticeItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const title = item.getAttribute('data-title');
+          const content = item.getAttribute('data-content');
+          const date = item.getAttribute('data-date'); // Get the date
+
+          // Set the title, content, and date of the modal
+          document.getElementById('modal-title').textContent = title;
+          document.getElementById('modal-content').textContent = content;
+          document.getElementById('modal-date').textContent = "Uploaded on: " + date;
+
+          // Show the modal
+          modal.style.display = 'block';
+        });
+      });
+
+      // Function to close the modal
+      function closeModal() {
+        modal.style.display = 'none';
+      }
+
+      // Close modal when clicking outside content
+      window.onclick = function(event) {
+        if (event.target === modal) {
+          closeModal();
+        }
+      };
+
+      // Close modal on close button click
+      document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+    });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Get the "Go to Home" button
+      const goHomeButton = document.getElementById('go-home-btn');
+      
+      // Add event listener for click event
+      goHomeButton.addEventListener('click', function() {
+        // Redirect to the home page (You can change the URL if needed)
+        window.history.back(); // "/" is the root URL (Home page)
+      });
+    });
+    
+  </script>
 </body>
 </html>

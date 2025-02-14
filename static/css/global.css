@@ -125,6 +125,30 @@ body.dark .circle {
     height: 100vh;
     margin: 0;
 }
+#mainpage-logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#mainpage-animated-logo {
+    width: 100px;
+    height: 100px;
+    animation: spin-scale 4s infinite ease-in-out;
+}
+
+@keyframes spin-scale {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        transform: scale(1.1) rotate(180deg);
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+    }
+}
+
 
 /* Geometric Background Circles for Admin Log Page */
 #mainpage-circle-top-left,
@@ -172,6 +196,35 @@ body.dark .circle {
     margin-bottom: 30px;
 }
 
+#mainpage-title {
+    font-size: 24px;
+    color: #f5eeee;
+    margin-top: 20px;
+    margin-right: 30px;
+
+    /* Animation */
+    animation: fade-slide-in 2s ease-in-out forwards;
+}
+body.mainpage.dark #mainpage-title {
+    font-size: 24px;
+    color: #f5eeee;
+    margin-top: 20px;
+    margin-right: 30px;
+
+    /* Animation */
+    animation: fade-slide-in 2s ease-in-out forwards;
+}
+/* Keyframes for fade and slide-in effect */
+@keyframes fade-slide-in {
+    0% {
+        opacity: 0; /* Start completely transparent */
+        transform: translateY(20px); /* Slightly below its original position */
+    }
+    100% {
+        opacity: 1; /* Fully visible */
+        transform: translateY(0); /* Original position */
+    }
+}
 .mainpage-container .login-button {
     margin-top: 20px !important;
     background-color: #3c4e6a !important;
@@ -585,13 +638,6 @@ body.admindashboard.dark .theme-toggle-btn {
     background-color: #1f2937 !important;
 }
 
-/* .theme-toggle-btn i {
-    font-size: 20px !important;
-}
-
-.theme-toggle-btn:hover {
-    background-color: #2563eb !important;
-} */
 
 body.admindashboard.dark .theme-toggle-btn:hover {
     background-color: #4b5563 !important;

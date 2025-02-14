@@ -1,0 +1,170 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subjects</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/manage.css' %}">
+</head>
+<body>
+
+     <!-- Theme Toggle Button -->
+     <button id="theme-toggle-btn" class="theme-toggle-btn">
+        <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+    </button>
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+    <h2>Manage Subjects</h2>
+
+    <!-- Add/Edit Subject Form -->
+    <h3 id="form-title">Add Subject</h3>
+    <form method="post" id="subject-form">
+        {% csrf_token %}
+        <input type="text" name="subject_code" id="subject_code" placeholder="Subject Code" required>
+        <input type="text" name="subject_name" id="subject_name" placeholder="Subject Name" required>
+        <select name="department_id" id="department_id" required>
+            <option value="">Select Department</option>
+            {% for department in departments %}
+            <option value="{{ department.id }}">{{ department.Department }}</option>
+            {% endfor %}
+        </select>
+        <select name="course_id" id="course_id" required>
+            <option value="">Select Course</option>
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.CourseName }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="year_of_syllabus" id="year_of_syllabus" placeholder="Year of Syllabus" required>
+        <select name="semester" id="semester" required>
+            <option value="">Select Semester</option>
+            {% for semester in semesters %}
+            <option value="{{ semester.id }}">{{ semester.Semester }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- Subjects Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Subject Code</th>
+                <th>Subject Name</th>
+                <th>Department</th>
+                <th>Course</th>
+                <th>Year of Syllabus</th>
+                <th>Semester</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject in subjects %}
+            <tr data-id="{{ subject.id }}">
+                <td>{{ subject.Subject_code }}</td>
+                <td>{{ subject.SubjectName }}</td>
+                <td>{{ subject.Department.Department }}</td>
+                <td>{{ subject.Course.CourseName }}</td>
+                <td>{{ subject.Year_of_Syllabus }}</td>
+                <td>{{ subject.Semester.Semester }}</td>
+                <td>
+                    <button class="edit-btn" id="edit-btn" data-id="{{ subject.id }}">Edit</button>
+                    <button class="delete-btn" id="delete-btn" data-id="{{ subject.id }}">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // Clear the form and reset for adding a new subject
+        function resetForm() {
+            $('#form-title').text('Add Subject');
+            $('#subject-form').attr('action', '{% url "manage_subjects" %}');
+            $('#subject_code').val('');
+            $('#subject_name').val('');
+            $('#department_id').val('');
+            $('#course_id').val('');
+            $('#year_of_syllabus').val('');
+            $('#semester').val('');
+        }
+    
+        // Add or Update Subject
+        $('#subject-form').on('submit', function (e) {
+            e.preventDefault();
+            const formAction = $(this).attr('action');
+            $.ajax({
+                url: formAction,
+                method: 'POST',
+                data: $(this).serialize(),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+                },
+                success: function (response) {
+                    alert(response.message);
+                    if (response.success) {
+                        location.reload(); // Reload to show updated subject list
+                    }
+                },
+                error: function () {
+                    alert('An error occurred.');
+                }
+            });
+        });
+    
+        // Edit Subject
+        $('.edit-btn').on('click', function () {
+            const subjectId = $(this).data('id');
+            const url = `/subjects/update/${subjectId}/`;  // Use dynamic URL with the subject id
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function (response) {
+                    if (response.success) {
+                        $('#form-title').text('Edit Subject');
+                        $('#subject-form').attr('action', `/subjects/update/${subjectId}/`);
+                        $('#subject_code').val(response.subject.Subject_code);
+                        $('#subject_name').val(response.subject.SubjectName);
+                        $('#department_id').val(response.subject.Department);
+                        $('#course_id').val(response.subject.Course);
+                        $('#year_of_syllabus').val(response.subject.Year_of_Syllabus);
+                        $('#semester').val(response.subject.Semester);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while fetching subject details.');
+                }
+            });
+        });
+    
+        // Delete Subject
+        $('.delete-btn').on('click', function () {
+            const subjectId = $(this).data('id');
+            const url = `/subjects/delete/${subjectId}/`; // URL for delete action
+    
+            if (confirm('Are you sure you want to delete this subject?')) {
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+                    },
+                    success: function (response) {
+                        alert(response.message);
+                        if (response.success) {
+                            location.reload(); // Reload to reflect the deletion
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred while deleting the subject.');
+                    }
+                });
+            }
+        });
+    </script>
+    
+</body>
+</html>

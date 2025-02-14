@@ -1,0 +1,144 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Courses</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/manage.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle-btn" class="theme-toggle-btn">
+        <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+    </button>
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+    <h2>Manage Courses</h2>
+
+    <form id="course-form" method="post">
+        {% csrf_token %}
+        <label for="id_CourseName">Course Name:</label>
+        <input type="text" name="CourseName" id="id_CourseName" required><br>
+
+        <label for="id_Department">Department:</label>
+        <select name="Department" id="id_Department" required>
+            {% for department in departments %}
+                <option value="{{ department.id }}">{{ department.Department }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="id_CourseDuration">Course Duration:</label>
+        <input type="text" name="CourseDuration" id="id_CourseDuration" required><br>
+
+        <label for="id_CourseDescription">Course Description:</label>
+        <input type="text" name="CourseDescription" id="id_CourseDescription" required><br>
+
+        <label for="id_CourseCode">Course Code:</label>
+        <input type="text" name="CourseCode" id="id_CourseCode" required><br>
+
+        <button type="submit">Add Course</button>
+    </form>
+
+    <h3>Courses List</h3>
+    <table id="courses-list">
+        <thead>
+            <tr>
+                <th>Course Name</th>
+                <th>Department</th>
+                <th>Duration</th>
+                <th>Code</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr id="course-{{ course.id }}">
+                <td>{{ course.CourseName }}</td>
+                <td>{{ course.Department.Department }}</td>
+                <td>{{ course.CourseDuration }}</td>
+                <td>{{ course.CourseCode }}</td>
+                <td>
+                    <button id="edit-course-btn" class="edit-course-btn" data-id="{{ course.id }}">Edit</button>
+                    <button id="delete-course-btn" class="delete-course-btn" data-id="{{ course.id }}">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+
+    <script>
+        // Handle course addition
+        $('#course-form').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '{% url "manage_courses" %}',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload(); // Reload the page to show the added course
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                    alert('An error occurred while processing the request.');
+                }
+            });
+        });
+
+        // Handle course deletion
+        $('#courses-list').on('click', '.delete-course-btn', function() {
+            const courseId = $(this).data('id');
+            $.ajax({
+                url: '/delete_course/' + courseId + '/',
+                method: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        $('#course-' + courseId).remove(); // Remove the course row
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                    alert('An error occurred while deleting the course.');
+                }
+            });
+        });
+
+        // Handle course edit
+        $('#courses-list').on('click', '.edit-course-btn', function() {
+            const courseId = $(this).data('id');
+            $.ajax({
+                url: '/update_course/' + courseId + '/',
+                method: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    // Add other data like course name, etc.
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload(); // Reload to show updated details
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                    alert('An error occurred while editing the course.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

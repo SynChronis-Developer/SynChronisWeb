@@ -1,18 +1,23 @@
-{% load static%}
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Notices</title>
-    <link rel="stylesheet" href="{% static 'css/addnotices.css' %}">
+    <link rel="stylesheet" href="{% static 'css/teachernotice.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+     <!-- Theme Toggle Button -->
+<button id="theme-toggle-btn" class="theme-toggle-btn">
+    <i class="fa fa-sun"></i> <!-- Default icon (sun for light theme) -->
+</button>
     <h1>Teacher Notices</h1>
 
-    <h2>Create a New Teacher Notice</h2>
+    <h2>Create or Update a Teacher Notice</h2>
     <form id="teacherNoticeForm" enctype="multipart/form-data">
-        <input type="hidden" id="teacherNoticeId" name="noticeId" value="">
+        <input type="hidden" id="teacherNoticeId" name="noticeId"> <!-- Hidden field for notice ID -->
 
         <label for="noticeName">Notice Name</label>
         <input type="text" id="noticeName" name="NoticeName" placeholder="Enter Notice Name" required>
@@ -21,9 +26,9 @@
         <textarea id="noticeContent" name="NoticeContent" placeholder="Enter Notice Content" required></textarea>
 
         <label for="department">Select Department</label>
-        <select id="department" name="Department" required>
+        <select id="department" name="Department" required multiple>
             {% for department in departments %}
-                <option value="{{ department.id }}">{{ department.ClassName }}</option>
+                <option value="{{ department.id }}">{{ department.Department }}</option>
             {% endfor %}
         </select>
 
@@ -34,30 +39,37 @@
     </form>
 
     <h2>Existing Teacher Notices</h2>
+    <div id="teacherNoticeTableContainer">
     <table>
         <thead>
             <tr>
                 <th>Notice Name</th>
+                <th>Date </th>
                 <th>Notice Content</th>
-                <th>Department</th>
+                <th>Departments</th>
                 <th>Attachment</th>
-                <th>Actions</th>
+                <th colspan="2">Actions</th>
             </tr>
         </thead>
         <tbody id="teacherNoticeTableBody">
-            {% for notice in notices %}
+            {% for notice in teacher_notices %}
                 <tr data-notice-id="{{ notice.id }}">
                     <td>{{ notice.NoticeName }}</td>
+                    <td>{{ notice.Date }}</td>
                     <td>{{ notice.NoticeContent }}</td>
-                    <td>{{ notice.Department.ClassName }}</td>
+                    <td>
+                        {% for department in notice.Department.all %}
+                            <span>{{ department.Department }}</span><br>
+                        {% endfor %}
+                    </td>
                     <td>
                         {% if notice.FileAttachment %}
-                            <a href="{{ notice.FileAttachment.url }}" target="_blank">Download</a>
+                            <a href="{{ notice.FileAttachment.url }}" class="attachment-link" target="_blank">Download</a>
                         {% else %}
                             No Attachment
                         {% endif %}
                     </td>
-                    <td>
+                    <td >
                         <button class="edit-button">Edit</button>
                         <button class="delete-button">Delete</button>
                     </td>
@@ -65,29 +77,56 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
+
+ <!-- Go to Home Button -->
+ <button id="go-home-btn" class="go-home-btn" align="center">Go Back
+    <i class="fa fa-arrow-left"></i>
+  </button>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Get the "Go to Home" button
+      const goHomeButton = document.getElementById('go-home-btn');
+      
+      // Add event listener for click event
+      goHomeButton.addEventListener('click', function() {
+        // Redirect to the home page (You can change the URL if needed)
+        window.history.back(); // "/" is the root URL (Home page)
+      });
+    });
+    
+  </script>
+<!-- JavaScript for Theme Toggle and Logout Button -->
+<script src="{% static 'js/theme-switcher.js' %}"></script>
 
     <script>
         $(document).ready(function () {
-            // Edit notice functionality
-            $('.edit-button').click(function () {
+            // Handle edit button click
+            $(document).on('click', '.edit-button', function () {
                 var row = $(this).closest('tr');
                 var noticeId = row.data('notice-id');
-                var noticeName = row.find('td:nth-child(1)').text();
-                var noticeContent = row.find('td:nth-child(2)').text();
-                var department = row.find('td:nth-child(3)').text();
+                var noticeName = row.find('td:nth-child(1)').text().trim();
+                var noticeContent = row.find('td:nth-child(3)').text().trim();
+                var departmentIds = [];
+                row.find('td:nth-child(3) span').each(function () {
+                    departmentIds.push($(this).text());
+                });
 
-                // Fill the form with notice data
+                // Populate the form for editing
                 $('#teacherNoticeId').val(noticeId);
                 $('#noticeName').val(noticeName);
                 $('#noticeContent').val(noticeContent);
-                $('#department').val(department);  // Ensure this is set dynamically if needed
 
-                // Change the button text to 'Update Notice'
+                // Set selected departments
+                $('#department option').each(function () {
+                    $(this).prop('selected', departmentIds.includes($(this).text()));
+                });
+
                 $('button[type="submit"]').text('Update Notice');
             });
 
-            // Delete notice functionality
-            $('.delete-button').click(function () {
+            // Handle delete button click
+            $(document).on('click', '.delete-button', function () {
                 var row = $(this).closest('tr');
                 var noticeId = row.data('notice-id');
 
@@ -95,62 +134,74 @@
                     $.ajax({
                         type: 'POST',
                         url: '{% url "delete_teacher_notice" %}',
-                        data: {
-                            'noticeId': noticeId,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                        },
+                        data: JSON.stringify({ noticeId: noticeId }),
+                        contentType: 'application/json',
+                        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
                         success: function (response) {
                             if (response.success) {
                                 row.remove();
                                 alert('Notice deleted successfully!');
                             } else {
-                                alert('Failed to delete notice.');
+                                alert('Error deleting notice: ' + response.errors);
                             }
                         },
                         error: function () {
-                            alert('Error while deleting notice.');
+                            alert('Failed to delete notice.');
                         }
                     });
                 }
             });
 
-            // Handle form submission for adding/updating notices
+            // Handle form submission for creating/updating notices
             $('#teacherNoticeForm').submit(function (event) {
-                event.preventDefault();  // Prevent normal form submission
+                event.preventDefault();
 
                 var noticeId = $('#teacherNoticeId').val();
-                var actionUrl = noticeId ? '{% url "update_teacher_notice" %}' : '{% url "create_teacher_notice" %}';
-
-                var formData = new FormData(this); // Include the file data
+                var formData = new FormData(this);
+                var url = noticeId ? '{% url "create_teacher_notice" %}' : '{% url "create_teacher_notice" %}';
 
                 $.ajax({
                     type: 'POST',
-                    url: actionUrl,
+                    url: url,
                     data: formData,
-                    processData: false,  // Don't process the data
-                    contentType: false,  // Don't set content type
+                    processData: false,
+                    contentType: false,
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
                     success: function (response) {
                         if (response.success) {
-                            if (noticeId) {
-                                // Update the row in the table
-                                var row = $('tr[data-notice-id="' + noticeId + '"]');
-                                row.find('td:nth-child(1)').text(response.notice_name);
-                                row.find('td:nth-child(2)').text(response.notice_content);
-                                row.find('td:nth-child(3)').text(response.department);
-                                row.find('td:nth-child(4)').html(response.file_attachment ? '<a href="' + response.file_attachment_url + '" target="_blank">Download</a>' : 'No Attachment');
+                            const data = response.data;
+                            const row = $(`tr[data-notice-id="${data.id}"]`);
+                    
+                            // If row exists, update it; otherwise, add a new one
+                            if (row.length > 0) {
+                                row.find('td:nth-child(1)').text(data.NoticeName);
+                                row.find('td:nth-child(2)').text(data.NoticeDate);
+                                row.find('td:nth-child(3)').text(data.NoticeContent);
+                                row.find('td:nth-child(4)').html(data.Department.map(dept => `<span>${dept.Department}</span><br>`).join('')); // Ensure correct handling
+                                row.find('td:nth-child(5)').html(data.FileAttachment ? `<a href="${data.FileAttachment}" target="_blank">Download</a>` : 'No Attachment');
                             } else {
-                                // Append the new notice to the table
-                                $('#teacherNoticeTableBody').append('<tr data-notice-id="' + response.notice_id + '"><td>' + response.notice_name + '</td><td>' + response.notice_content + '</td><td>' + response.department + '</td><td><a href="' + response.file_attachment_url + '" target="_blank">Download</a></td><td><button class="edit-button">Edit</button><button class="delete-button">Delete</button></td></tr>');
+                                // Add new row to table if not found
+                                $('#teacherNoticeTableBody').append(`
+                                    <tr data-notice-id="${data.id}">
+                                        <td>${data.NoticeName}</td>
+                                        <td>${data.Date}</td>
+                                        <td>${data.NoticeContent}</td>
+                                        <td>${data.Department.map(dept => `<span>${dept.Department}</span><br>`).join('')}</td>
+                                        <td>${data.FileAttachment ? `<a href="${data.FileAttachment}" target="_blank">Download</a>` : 'No Attachment'}</td>
+                                        <td><button class="edit-button">Edit</button><button class="delete-button">Delete</button></td>
+                                    </tr>
+                                `);
                             }
-                            alert('Notice saved successfully!');
-                            $('#teacherNoticeForm')[0].reset();  // Clear the form
-                            $('button[type="submit"]').text('Create Notice');  // Reset button text
+                    
+                            alert(response.message); // Show success message
+                            $('#teacherNoticeForm')[0].reset(); // Reset the form
+                            $('button[type="submit"]').text('Create Notice'); // Set button text to "Create Notice"
                         } else {
-                            alert('Failed to save notice: ' + JSON.stringify(response.errors));
+                            alert('Error saving notice: ' + response.errors); // Handle error case
                         }
                     },
                     error: function () {
-                        alert('Error while saving notice.');
+                        alert('Failed to save notice.');
                     }
                 });
             });

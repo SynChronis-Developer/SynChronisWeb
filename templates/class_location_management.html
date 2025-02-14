@@ -1,0 +1,198 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Location Management</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Class Location Management</h1>
+
+    <!-- Google Map -->
+    <div id="map"></div>
+
+    <!-- Add/Update Form -->
+    <form id="locationForm">
+        {% csrf_token %}
+        <input type="hidden" id="locationId" name="id" value="">
+        <label for="class_name">Class Name:</label>
+        <input type="text" id="class_name" name="class_name" required>
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" name="latitude" readonly required>
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" name="longitude" readonly required>
+        <label for="location_name">Location Name:</label>
+        <input type="text" id="location_name" name="location_name" required>
+        <label for="year">Year:</label>
+        <input type="text" id="year" name="year" required>
+        <label for="semester">Semester:</label>
+        <select id="semester" name="semester" required>
+            {% for semester in semesters %}
+                <option value="{{ semester.id }}">{{ semester.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="department">Department:</label>
+        <select id="department" name="department" required>
+            {% for department in departments %}
+                <option value="{{ department.id }}">{{ department.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="teacher">Teacher:</label>
+        <select id="teacher" name="teacher" required>
+            {% for teacher in teachers %}
+                <option value="{{ teacher.id }}">{{ teacher.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Save</button>
+    </form>
+
+    <!-- Table to Display Class Locations -->
+    <table border="1" id="classTable">
+        <thead>
+            <tr>
+                <th>Class Name</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Location Name</th>
+                <th>Year</th>
+                <th>Semester</th>
+                <th>Department</th>
+                <th>Teacher</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be populated dynamically using AJAX -->
+        </tbody>
+    </table>
+
+    <script>
+        let map, marker;
+
+        // Initialize Google Map
+        function initMap() {
+            const initialPosition = { lat: 20.5937, lng: 78.9629 }; // Default: India
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 5,
+                center: initialPosition,
+            });
+
+            marker = new google.maps.Marker({
+                position: initialPosition,
+                map: map,
+                draggable: true,
+            });
+
+            // Update latitude and longitude when marker is dragged
+            marker.addListener("dragend", function () {
+                const position = marker.getPosition();
+                $("#latitude").val(position.lat());
+                $("#longitude").val(position.lng());
+            });
+
+            // Use GPS to center the map
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const gpsPosition = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        map.setCenter(gpsPosition);
+                        map.setZoom(15);
+                        marker.setPosition(gpsPosition);
+                        $("#latitude").val(gpsPosition.lat);
+                        $("#longitude").val(gpsPosition.lng);
+                    },
+                    () => {
+                        alert("Geolocation failed or is not enabled.");
+                    }
+                );
+            }
+        }
+
+        $(document).ready(function () {
+            // CSRF token setup for AJAX
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
+
+            // Fetch and load all class locations
+            function fetchLocations() {
+                $.ajax({
+                    url: "/locations/",
+                    type: "GET",
+                    success: function (data) {
+                        let rows = '';
+                        data.locations.forEach(location => {
+                            rows += `
+                                <tr>
+                                    <td>${location.class_name}</td>
+                                    <td>${location.latitude}</td>
+                                    <td>${location.longitude}</td>
+                                    <td>${location.location_name}</td>
+                                    <td>${location.year}</td>
+                                    <td>${location.semester}</td>
+                                    <td>${location.department}</td>
+                                    <td>${location.teacher}</td>
+                                    <td>
+                                        <button class="edit-btn" data-id="${location.id}">Edit</button>
+                                        <button class="delete-btn" data-id="${location.id}">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        $("#classTable tbody").html(rows);
+                    }
+                });
+            }
+
+            // Add/Update location
+            $("#locationForm").submit(function (e) {
+                e.preventDefault();
+
+                const formData = $(this).serialize();
+                const locationId = $("#locationId").val();
+                const url = locationId ? `/locations/${locationId}/update/` : "/locations/add/";
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: formData,
+                    headers: { "X-CSRFToken": csrftoken },
+                    success: function (response) {
+                        alert(response.message);
+                        $("#locationForm")[0].reset();
+                        fetchLocations();
+                    }
+                });
+            });
+
+            // Fetch locations on load
+            fetchLocations();
+        });
+    </script>
+</body>
+</html>

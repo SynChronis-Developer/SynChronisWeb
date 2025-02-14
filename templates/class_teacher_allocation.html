@@ -1,0 +1,134 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Teacher Allocation</title>
+    <link rel="stylesheet" href="{% static 'css/class_teacher_allocation.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<h2>Class Teacher Allocation</h2>
+
+<!-- Table to Display Allocated Teachers -->
+<table id="class-teacher-table">
+    <thead>
+        <tr>
+            <th>Class Name</th>
+            <th>Assigned Teacher</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Data will be loaded dynamically via AJAX -->
+    </tbody>
+</table>
+
+<!-- Form to Assign/Update Teacher -->
+<h3>Assign Teacher</h3>
+<form id="assign-teacher-form">
+    {% csrf_token %}
+    <label for="class-select">Select Class:</label>
+    <select id="class-select" name="class_id"></select>
+
+    <label for="teacher-select">Select Teacher:</label>
+    <select id="teacher-select" name="teacher_id"></select>
+
+    <button type="submit">Assign/Update Teacher</button>
+</form>
+
+<script>
+    // Function to get CSRF token from cookies
+    function getCSRFToken() {
+        let csrfToken = null;
+        document.cookie.split(";").forEach(function(cookie) {
+            let parts = cookie.split("=");
+            if (parts[0].trim() === "csrftoken") {
+                csrfToken = parts[1];
+            }
+        });
+        return csrfToken;
+    }
+
+    $(document).ready(function() {
+        // Fetch class-teacher list and populate table & dropdowns
+        function loadClassTeacherData() {
+            $.ajax({
+                url: "{% url 'class_teacher_list' %}",
+                method: "GET",
+                success: function(response) {
+                    let tableBody = $("#class-teacher-table tbody");
+                    let classDropdown = $("#class-select");
+                    let teacherDropdown = $("#teacher-select");
+
+                    tableBody.empty();
+                    classDropdown.empty();
+                    teacherDropdown.empty();
+
+                    // Populate class list and dropdown
+                    response.classes.forEach(function(cls) {
+                        let teacherName = cls.teacher ? cls.teacher : "Not Assigned";
+                        let removeButton = cls.teacher_id 
+                            ? `<button class="remove-btn" data-class-id="${cls.id}">Remove</button>` 
+                            : "";
+
+                        tableBody.append(`
+                            <tr>
+                                <td>${cls.class_name}</td>
+                                <td>${teacherName}</td>
+                                <td>${removeButton}</td>
+                            </tr>
+                        `);
+
+                        classDropdown.append(`<option value="${cls.id}">${cls.class_name}</option>`);
+                    });
+
+                    // Populate teacher dropdown
+                    response.teachers.forEach(function(teacher) {
+                        teacherDropdown.append(`<option value="${teacher.id}">${teacher.name}</option>`);
+                    });
+                }
+            });
+        }
+
+        loadClassTeacherData();
+
+        // Assign or update a teacher
+        $("#assign-teacher-form").submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{% url 'assign_teacher' %}",
+                method: "POST",
+                data: $(this).serialize(),
+                headers: { "X-CSRFToken": getCSRFToken() },
+                success: function(response) {
+                    alert(response.message);
+                    loadClassTeacherData();  // Reload data
+                }
+            });
+        });
+
+        // Remove teacher from a class
+        $(document).on("click", ".remove-btn", function() {
+            let classId = $(this).data("class-id");
+
+            $.ajax({
+                url: "{% url 'remove_teacher' %}",
+                method: "DELETE",
+                contentType: "application/json",  // Send JSON properly
+                data: JSON.stringify({ class_id: classId }),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", getCSRFToken()); // Add CSRF Token
+                },
+                success: function(response) {
+                    alert(response.message);
+                    loadClassTeacherData();  // Reload data
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
