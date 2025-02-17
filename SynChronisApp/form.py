@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 
-from SynChronisApp.models import BatchTable, ClassTable, CollegeDetailsTable, CourseTable, DepartmentsTable, LeaveApplicationTable, LocationTable, LoginTable, NotesTable, StudentNoticeTable, StudentTable, SubjectsTable, TeacherNoticeTable, TeacherTable, TimeTableTable
+from SynChronisApp.models import *
 
 
 class LocationForm(ModelForm):
@@ -22,7 +22,7 @@ class TimetableEntryForm(forms.ModelForm):
 class ClassForm(ModelForm):
     class Meta:
         model = ClassTable
-        fields = ['ClassName', 'TeacherName', 'Latitude', 'Longitude', 'Location_name', 'Year', 'Semester']
+        fields = ['ClassName', 'TeacherName', 'Latitude', 'Longitude', 'Location_name', 'Semester']
         
 class TeacherForm(ModelForm):
     class Meta:
@@ -32,7 +32,7 @@ class TeacherForm(ModelForm):
 class SubjectsForm(ModelForm):
     class Meta:
         model = SubjectsTable
-        fields = ['SubjectName', 'Course', 'Semester','Year_of_Syllabus']
+        fields = ['SubjectName','Semester','Year_of_Syllabus']
         
 class NotesForm(ModelForm):
     class Meta:
@@ -52,9 +52,9 @@ class StudentForm(ModelForm):
 class StudentNoticeForm(forms.ModelForm):
     class Meta:
         model = StudentNoticeTable
-        fields = ['Notice_name', 'Notice_Content', 'File_Attachment', 'BatchName']
+        fields = ['Notice_name', 'Notice_Content', 'File_Attachment']
 
-    BatchName = forms.ModelMultipleChoiceField(queryset=BatchTable.objects.all(), widget=forms.CheckboxSelectMultiple)
+
     
 class TeacherNotificationForm(ModelForm):
     class Meta:
@@ -66,10 +66,7 @@ class LeaveApplicationForm(ModelForm):
         model = LeaveApplicationTable
         fields = ['StudentName', 'Date', 'Reason', 'Status']
         
-class BatchForm(forms.ModelForm):
-    class Meta:
-        model = BatchTable
-        fields = ['BatchName', 'BatchYear', 'BatchStartYear', 'BatchEndYear', 'ClassName']
+
 
     # Add placeholders or initial labels for fields
     def __init__(self, *args, **kwargs):
@@ -96,4 +93,4 @@ class DepartmentForm(ModelForm):
 class SubjectForm(forms.ModelForm):
     class Meta:
         model = SubjectsTable
-        fields = ['SubjectName', 'Course', 'Semester', 'Year_of_Syllabus', 'Subject_code', 'Department']
+        fields = ['SubjectName', 'Semester', 'Year_of_Syllabus', 'Subject_code', 'Department']

@@ -1,9 +1,6 @@
 from django.contrib import admin
-from .models import BatchTable, CollegeDetailsTable, CourseTable, DepartmentsTable, LeaveApplicationTable, LocationTable, LoginTable, NotesTable, PasswordResetOTP, RegistrationOTP, SemesterTable, StudentNoticeTable, SubjectsTable, TeacherNoticeTable, TimeTableTable
-from .models import TeacherTable
-from .models import StudentTable
-from .models import ClassTable
-from .models import AttendanceTable
+from .models import *
+
 
 # Register your models here.
 admin.site.register(LoginTable)
@@ -11,7 +8,6 @@ admin.site.register(TeacherTable)
 admin.site.register(StudentTable)
 admin.site.register(ClassTable)
 admin.site.register(SubjectsTable)
-admin.site.register(BatchTable)
 admin.site.register(SemesterTable)
 admin.site.register(AttendanceTable)
 admin.site.register(LocationTable)

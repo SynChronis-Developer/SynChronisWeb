@@ -48,8 +48,14 @@
                 <td>{{ i.Qualification }}</td>
                 <td>{{ i.LOGIN.status }}</td>
                 <td>
-                    <a href="/accept_teacher/{{ i.id }}"><button id="viewteacher-accept" class="verify-button">Accept</button></a>
+                    {% if i.LOGIN.status == "Accept" %}
                     <a href="/reject_teacher/{{ i.id }}"><button id="viewteacher-reject" class="reject-button">Reject</button></a>
+                    {% elif i.LOGIN.status == "Reject" %}
+                    <a href="/accept_teacher/{{ i.id }}"><button id="viewteacher-accept" class="verify-button">Accept</button></a>
+                    {% else %}
+                    <a href="/reject_teacher/{{ i.id }}"><button id="viewteacher-reject" class="reject-button">Reject</button></a>
+                    <a href="/accept_teacher/{{ i.id }}"><button id="viewteacher-accept" class="verify-button">Accept</button></a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

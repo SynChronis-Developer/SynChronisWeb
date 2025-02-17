@@ -1,300 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <title>Student Attendance</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        .filter-section {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <!-- Main Tabs Navigation (Student Attendance, Class Attendance) -->
-        <ul class="nav nav-tabs" id="attendanceTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link active" id="student-attendance-tab" data-bs-toggle="tab" href="#student-attendance" role="tab" aria-controls="student-attendance" aria-selected="true">Student Attendance</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" id="class-attendance-tab" data-bs-toggle="tab" href="#class-attendance" role="tab" aria-controls="class-attendance" aria-selected="false">Class Attendance</a>
-            </li>
-        </ul>
 
-        <!-- Main Tabs Content -->
-        <div class="tab-content mt-3">
-            <!-- Student Attendance Tab Content -->
-            <div class="tab-pane fade show active" id="student-attendance" role="tabpanel" aria-labelledby="student-attendance-tab">
-                <ul class="nav nav-pills" id="studentTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active" id="student-monthly-tab" data-bs-toggle="pill" href="#student-monthly" role="tab" aria-controls="student-monthly" aria-selected="true">Monthly Attendance</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="student-semester-tab" data-bs-toggle="pill" href="#student-semester" role="tab" aria-controls="student-semester" aria-selected="false">Semester Attendance</a>
-                    </li>
-                </ul>
+    <h2>Student Attendance</h2>
 
-                <!-- Student Tabs Content -->
-                <div class="tab-content mt-3">
-                    <!-- Monthly Attendance (Student) -->
-                    <div class="tab-pane fade show active" id="student-monthly" role="tabpanel" aria-labelledby="student-monthly-tab">
-                        <h4>Monthly Attendance (Student)</h4>
-                        <form id="studentMonthlyForm">
-                            <div class="mb-3">
-                                <label for="studentSelect" class="form-label">Student</label>
-                                <select id="studentSelect" class="form-select" required>
-                                    {%for student in students%}
-                                    <option value="{{student.id}}">{{student.StudentName}}</option>
-                                    <!-- Dynamically populated options -->
-                                    {%endfor%}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="studentMonthSelect" class="form-label">Month</label>
-                                <input type="month" id="studentMonthSelect" class="form-control" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Get Attendance</button>
-                        </form>
-                        <table id="studentMonthlyTable" class="table mt-3" style="display: none;">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Attendance</th>
-                                </tr>
-                            </thead>
-                            <tbody id="studentMonthlyTableBody"></tbody>
-                        </table>
-                    </div>
+    <div class="filter-section">
+        <form method="GET" action="">
+            <label for="student">Select Student:</label>
+            <select name="student" id="student">
+                <option value="">--Select Student--</option>
+                {% for student in students %}
+                    <option value="{{ student.id }}">{{ student.StudentName }}</option>
+                {% endfor %}
+            </select>
 
-                    <!-- Semester Attendance (Student) -->
-                    <div class="tab-pane fade" id="student-semester" role="tabpanel" aria-labelledby="student-semester-tab">
-                        <h4>Semester Attendance (Student)</h4>
-                        <form id="studentSemesterForm">
-                            <div class="mb-3">
-                                <label for="studentSemesterSelect" class="form-label">Student</label>
-                                <select id="studentSemesterSelect" class="form-select" required>
-                                  {%for student in students%}
-                                  <option value="{{student.id}}">{{student.StudentName}}</option>
-                                  <!-- Dynamically populated options -->
-                                  {%endfor%}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="studentSemesterYearSelect" class="form-label">Semester</label>
-                                <select id="studentSemesterYearSelect" class="form-select" required>
-                                  {%for semester in semesters%}
-                                    <option value="{{semester.id}}">{{semester.Semester}}</option>
-                                    <!-- Dynamically populated semesters -->
-                                  {%endfor%}
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Get Attendance</button>
-                        </form>
-                        <table id="studentSemesterTable" class="table mt-3" style="display: none;">
-                            <thead>
-                                <tr>
-                                    <th>Month</th>
-                                    <th>Total Hours</th>
-                                    <th>Hours Present</th>
-                                    <th>Attendance</th>
-                                </tr>
-                            </thead>
-                            <tbody id="studentSemesterTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <label for="class">Select Class:</label>
+            <select name="class" id="class">
+                <option value="">--Select Class--</option>
+                {% for class in classes %}
+                    <option value="{{ class.id }}">{{ class.ClassName }}</option>
+                {% endfor %}
+            </select>
 
-            <!-- Class Attendance Tab Content -->
-            <div class="tab-pane fade" id="class-attendance" role="tabpanel" aria-labelledby="class-attendance-tab">
-                <ul class="nav nav-pills" id="classTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active" id="class-monthly-tab" data-bs-toggle="pill" href="#class-monthly" role="tab" aria-controls="class-monthly" aria-selected="true">Monthly Attendance</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="class-semester-tab" data-bs-toggle="pill" href="#class-semester" role="tab" aria-controls="class-semester" aria-selected="false">Semester Attendance</a>
-                    </li>
-                </ul>
+            <label for="semester">Select Semester:</label>
+            <select name="semester" id="semester">
+                <option value="">--Select Semester--</option>
+                {% for semester in semesters %}
+                    <option value="{{ semester.id }}">{{ semester.name }}</option>
+                {% endfor %}
+            </select>
 
-                <!-- Class Tabs Content -->
-                <div class="tab-content mt-3">
-                    <!-- Monthly Attendance (Class) -->
-                    <div class="tab-pane fade show active" id="class-monthly" role="tabpanel" aria-labelledby="class-monthly-tab">
-                        <h4>Monthly Attendance (Class)</h4>
-                        <form id="classMonthlyForm">
-                            <div class="mb-3">
-                                <label for="classSelect" class="form-label">Class</label>
-                                <select id="classSelect" class="form-select" required>
-                                  {%for class in classes%}
-                                  <option value="{{class.id}}">{{class.ClassName}}</option>
-                                  <!-- Dynamically populated options -->
-                                {%endfor%}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="classMonthSelect" class="form-label">Month</label>
-                                <input type="month" id="classMonthSelect" class="form-control" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Get Attendance</button>
-                        </form>
-                        <table id="classMonthlyTable" class="table mt-3" style="display: none;">
-                            <thead>
-                                <tr>
-                                    <th>Student</th>
-                                    <th>Total Hours</th>
-                                    <th>Hours Present</th>
-                                    <th>Attendance</th>
-                                </tr>
-                            </thead>
-                            <tbody id="classMonthlyTableBody"></tbody>
-                        </table>
-                    </div>
+            <label for="month">Select Month:</label>
+            <input type="month" name="month" id="month">
 
-                    <!-- Semester Attendance (Class) -->
-                    <div class="tab-pane fade" id="class-semester" role="tabpanel" aria-labelledby="class-semester-tab">
-                        <h4>Semester Attendance (Class)</h4>
-                        <form id="classSemesterForm">
-                            <div class="mb-3">
-                                <label for="classSemesterSelect" class="form-label">Class</label>
-                                <select id="classSemesterSelect" class="form-select" required>
-                                  {%for class in classes%}
-                                    <option value="{{class.id}}">{{class.ClassName}}</option>
-                                    <!-- Dynamically populated options -->
-                                  {%endfor%}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="classSemesterYearSelect" class="form-label">Semester</label>
-                                <select id="classSemesterYearSelect" class="form-select" required>
-                                  {%for semester in semesters%}
-                                  <option value="{{semester.id}}">{{semester.Semester}}</option>
-                                  <!-- Dynamically populated semesters -->
-                                {%endfor%}
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Get Attendance</button>
-                        </form>
-                        <table id="classSemesterTable" class="table mt-3" style="display: none;">
-                            <thead>
-                                <tr>
-                                    <th>Month</th>
-                                    <th>Total Hours</th>
-                                    <th>Hours Present</th>
-                                    <th>Attendance</th>
-                                </tr>
-                            </thead>
-                            <tbody id="classSemesterTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <button type="submit">View Attendance</button>
+        </form>
     </div>
 
-    <script>
-        // Function to fetch students and classes for dropdowns
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchStudents();
-            fetchClasses();
-            fetchSemesters();
-        });
+    <h3>Attendance Records</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Student Name</th>
+                <th>Class</th>
+                <th>Total Hours</th>
+                <th>Attended Hours</th>
+                <th>Attendance (%)</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in attendance %}
+                <tr>
+                    <td>{{ record.Date }}</td>
+                    <td>{{ record.StudentName.StudentName }}</td>
+                    <td>{{ record.StudentName.ClassName.ClassName }}</td>
+                    <td>{{ record.TotalHours }}</td>
+                    <td>{{ record.AttendedHours }}</td>
+                    <td>
+                        {% if record.TotalHours > 0 %}
+                            {{ record.AttendedHours|floatformat:2 }} / {{ record.TotalHours }} 
+                            ({{ record.AttendedHours|divisibleby:record.TotalHours|floatformat:2 }}%)
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </td>
+                    <td>{{ record.Status }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        // Fetch Students (for the dropdown)
-        function fetchStudents() {
-            fetch('/attendanceview/api/students/')
-                .then(response => response.json())
-                .then(data => {
-                    let studentSelect = document.getElementById("studentSelect");
-                    let studentSemesterSelect = document.getElementById("studentSemesterSelect");
-                    data.forEach(student => {
-                        let option = `<option value="${student.id}">${student.name}</option>`;
-                        studentSelect.innerHTML += option;
-                        studentSemesterSelect.innerHTML += option;
-                    });
-                });
-        }
+    <!-- Pagination -->
+    <div>
+        {% if attendance.has_previous %}
+            <a href="?page=1">First</a>
+            <a href="?page={{ attendance.previous_page_number }}">Previous</a>
+        {% endif %}
+        Page {{ attendance.number }} of {{ attendance.paginator.num_pages }}
+        {% if attendance.has_next %}
+            <a href="?page={{ attendance.next_page_number }}">Next</a>
+            <a href="?page={{ attendance.paginator.num_pages }}">Last</a>
+        {% endif %}
+    </div>
 
-        // Fetch Classes (for the dropdown)
-        function fetchClasses() {
-            fetch('/attendanceview/api/classes/')
-                .then(response => response.json())
-                .then(data => {
-                    let classSelect = document.getElementById("classSelect");
-                    let classSemesterSelect = document.getElementById("classSemesterSelect");
-                    data.forEach(classItem => {
-                        let option = `<option value="${classItem.id}">${classItem.name}</option>`;
-                        classSelect.innerHTML += option;
-                        classSemesterSelect.innerHTML += option;
-                    });
-                });
-        }
-
-        // Fetch Semesters (for the dropdowns)
-        function fetchSemesters() {
-            fetch('/attendanceview/api/semesters/')
-                .then(response => response.json())
-                .then(data => {
-                    let studentSemesterYearSelect = document.getElementById("studentSemesterYearSelect");
-                    let classSemesterYearSelect = document.getElementById("classSemesterYearSelect");
-                    data.forEach(semester => {
-                        let option = `<option value="${semester.id}">${semester.name}</option>`;
-                        studentSemesterYearSelect.innerHTML += option;
-                        classSemesterYearSelect.innerHTML += option;
-                    });
-                });
-        }
-
-        // Generic Function to Fetch Attendance
-        function fetchAttendance(id, param1, param2, type, isSemester = false) {
-            let url = `/attendanceview/api/attendance/${type}/${id}/`;
-            if (isSemester) {
-                url += `?semester=${param1}`;
-            } else {
-                url += `?month=${param1}&year=${param2}`;
-            }
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (type === 'student') {
-                        let table = document.getElementById('studentMonthlyTable');
-                        let tableBody = document.getElementById('studentMonthlyTableBody');
-                        table.style.display = 'table';
-                        tableBody.innerHTML = '';
-                        data.forEach(record => {
-                            let row = `<tr><td>${record.date}</td><td>${record.status}</td><td>${record.attendance}</td></tr>`;
-                            tableBody.innerHTML += row;
-                        });
-                    } else {
-                        let table = document.getElementById('classMonthlyTable');
-                        let tableBody = document.getElementById('classMonthlyTableBody');
-                        table.style.display = 'table';
-                        tableBody.innerHTML = '';
-                        data.forEach(record => {
-                            let row = `<tr><td>${record.student}</td><td>${record.total_hours}</td><td>${record.present_hours}</td><td>${record.attendance}</td></tr>`;
-                            tableBody.innerHTML += row;
-                        });
-                    }
-                });
-        }
-
-        // Student Monthly Form Submission
-        document.getElementById('studentMonthlyForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let studentId = document.getElementById("studentSelect").value;
-            let month = document.getElementById("studentMonthSelect").value;
-            fetchAttendance(studentId, month, null, 'student');
-        });
-
-        // Class Monthly Form Submission
-        document.getElementById('classMonthlyForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            let classId = document.getElementById("classSelect").value;
-            let month = document.getElementById("classMonthSelect").value;
-            fetchAttendance(classId, month, null, 'class');
-        });
-
-        // Semester-based Attendance handling can be added here, similar to the monthly handling.
-    </script>
 </body>
 </html>

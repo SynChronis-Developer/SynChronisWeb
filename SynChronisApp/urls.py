@@ -3,22 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 from django.views.generic import TemplateView
-from .views import (
-    AcceptTeacher, AddClassLocationView, AddDepartmentView,
-    Addnotes, AdminDashboard,AdminNotificationControl, AndroidLoginAPIView, ApproveLeaveApplication, AssignTeacherView, AttendanceView, 
-    BatchView, ClassLocationListView, ClassTeacherListView,CollegeDetailsCreateView, CollegeDetailsDeleteView, 
-    CollegeDetailsUpdateView, CollegeDetailsView,CreateBatchView,CreateSemesterView, 
-    DeleteBatchView, DeleteClassLocationView, DeleteCourseView, DeleteDepartmentView,
-    DeleteSemesterView, DeleteSubjectView, DeleteTimetableView,
-    DepartmentsView, DownloadTeacherTimetablePDFAPI, EditSubjectView, ForgotPasswordView, InitiateTeacherRegistrationView, Location, LoginPage, MainPage, ManageCoursesView, ManageDepartmentsView, 
-    ManageSemestersView, ManageSubjectsView, RejectTeacher, RemoveTeacherView, ResetPasswordView,SendLeaveApplication, SetOrUpdateTimetableView,
-    StudentNoticeCreateUpdateView, StudentNoticeDeleteView, StudentNoticeDetailView, StudentNoticeListView,
-    StudentNoticeView, TeacherNoticeCreateUpdateView, TeacherNoticeDeleteView, TeacherNoticeDetailView,
-    TeacherNoticeListView, TeacherNoticeView, TeacherTimetableAPIView,
-    TimetableView, UpdateBatchView, UpdateClassLocationView, UpdateCourseView, UpdateDepartmentView,
-    UpdateSemesterView, VerifyRegistrationOTPView, ViewNotes, 
-    ViewTeacher, ViewTimetableView, set_timetable,
-)
+from .views import *
 from SynChronisApp import views
 
 
@@ -135,8 +120,9 @@ urlpatterns = [
     # API to fetch a teacher's timetable
     path('api/view-teacher-timetable/<int:teacher_id>/', TeacherTimetableAPIView.as_view(), name='view-teacher-timetable'),
     # API to download a teacher's timetable as a PDF
-    path('api/download-teacher-timetable/<int:teacher_id>/', DownloadTeacherTimetablePDFAPI.as_view(), name='download-teacher-timetable'),
-
+     #attendance mark student
+    path('fetch-timetable/<int:id>', FetchTimeTableView.as_view(), name='fetch-timetable'),
+    path('mark-attendance/<int:id>', MarkAttendanceView.as_view(), name='mark-attendance'),
 ]
 
 if settings.DEBUG:
