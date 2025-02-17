@@ -36,44 +36,59 @@
             <option value="ON">Other Notice</option>
         </select>
 
-        <label>Select Batch</label>
-        <input type="radio" id="allBatches" name="batchSelection" value="all" checked> All Batches
-        <input type="radio" id="randomBatches" name="batchSelection" value="random"> Random Batches
 
-        <!-- Hidden batch selection dropdown -->
-        <div id="batchList" style="display:none;">
-            <label for="batchName">Select Batches (multiple allowed)</label>
-            <select id="batchName" name="BatchName" multiple>
-                {% for batch in batches %}
-                    <option value="{{ batch.id }}">{{ batch.BatchName }}</option>
-                {% endfor %}
-            </select>
-        </div>
+        
 
         <label for="fileAttachment">File Attachment</label>
         <input type="file" id="fileAttachment" name="FileAttachment">
 
         <button type="submit" class="button">Save Notice</button>
     </form>
-<div id="noticeTableContainer">
-    <h3>Existing Student Notices</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Notice Name</th>
-                <th>Notice Content</th>
-                <th>File Attachment</th>
-                <th>Associated Batches</th>
-                <th>Notice Type</th>
-                <th>Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="noticeTableBody">
-            <!-- AJAX will populate notices here -->
-        </tbody>
-    </table>
-</div>
+    <div id="noticeTableContainer">
+        <h3>Existing Student Notices</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Notice Name</th>
+                    <th>Notice Content</th>
+                    <th>File Attachment</th>
+                    <th>Associated Batches</th>
+                    <th>Notice Type</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for notice in notices %}
+                <tr>
+                    <td>{{ notice.Notice_name }}</td>
+                    <td>{{ notice.Notice_Content }}</td>
+                    <td>
+                        {% if notice.File_Attachment %}
+                            <a href="{{ notice.File_Attachment.url }}" target="_blank">Download</a>
+                        {% else %}
+                            No file attached
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if notice.BatchName.all %}
+                            <ul>
+                                {% for batch in notice.BatchName.all %}
+                                    <li>{{ batch.BatchName }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            No batches associated
+                        {% endif %}
+                    </td>
+                    <td>{{ notice.Notice_Type }}</td>
+                    <td>{{ notice.Date }}</td>
+                  
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
  <!-- Go to Home Button -->
  <button id="go-home-btn" class="go-home-btn" align="center">Go Back
     <i class="fa fa-arrow-left"></i>

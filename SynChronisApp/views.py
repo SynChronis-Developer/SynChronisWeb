@@ -12,11 +12,21 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 from .models import PasswordResetOTP, RegistrationOTP
 import random
+from rest_framework import generics
+
+from django.utils.timezone import localtime
+# Mark Attendance APIfrom datetime import datetime, timedelta
+from rest_framework.permissions import IsAuthenticated
+
+from .models import AttendanceTable, ClassTable, TimeTableTable
+from .serializers import AttendanceSerializer
+
+
+from datetime import timedelta, datetime
 from django.contrib.auth.hashers import check_password
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
-from .serializers import TeacherSerializer
+from .serializers import TeacherSerializer, TimeTableSerializer
 from .serializers import LoginSerializer
-from datetime import timedelta
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -27,26 +37,20 @@ from django.contrib.auth import authenticate
 from django.http import Http404, JsonResponse
 from django.contrib.auth import login, logout
 from django.shortcuts import  get_object_or_404
-from .models import TimeTableTable, ClassTable, SubjectsTable, TeacherTable
+from .models import  SubjectsTable
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import make_password
 from django.forms import model_to_dict
-from django.utils.timezone import localtime
 from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
 from django.http import  HttpResponse, HttpResponseBadRequest
 from django.views import View
 from django.views.generic import ListView
-from .form import  CollegeDetailsForm, CourseForm, DepartmentForm,LocationForm, TimetableEntryForm
-from .models import (
-    AttendanceTable, BatchTable, ClassTable, CollegeDetailsTable, CourseTable,
-    DepartmentsTable, LocationTable, LoginTable, SemesterTable, StudentNoticeTable, StudentTable, 
-    SubjectsTable, TeacherNoticeTable, TeacherTable, TimeTableTable
-)
+from .form import  *
+from .models import *
 import logging
-from datetime import datetime
 from rest_framework.decorators import api_view
 
 # Initialize logger for tracking events and errors
@@ -338,8 +342,7 @@ class BatchView(View):
     def get(self, request):
         classes = ClassTable.objects.all()
         # Fetch all batches from the database
-        batches = BatchTable.objects.all()
-        return render(request, 'batch_page.html', {'batches': batches, 'classes': classes})
+        return render(request, 'batch_page.html', {'classes': classes})
 
 # Create Batch View
 class CreateBatchView(View):
@@ -410,16 +413,13 @@ class DeleteBatchView(View):
 
 class ManageSemestersView(View):
     def get(self, request):
-        batches = BatchTable.objects.all()
         semesters = SemesterTable.objects.all()
-        return render(request, 'managesemester.html', {'batches': batches, 'semesters': semesters})
+        return render(request, 'managesemester.html', { 'semesters': semesters})
 
 class CreateSemesterView(View):
     def post(self, request):
         try:
-            batch = get_object_or_404(BatchTable, id=request.POST.get('BatchName'))
             semester = SemesterTable.objects.create(
-                BatchName=batch,
                 Semester=request.POST.get('Semester'),
                 StartDate=request.POST.get('StartDate'),
                 EndDate=request.POST.get('EndDate'),
@@ -427,7 +427,6 @@ class CreateSemesterView(View):
             return JsonResponse({
                 'success': True,
                 'semester_id': semester.id,
-                'batch_name': semester.BatchName.BatchName,
                 'semester': semester.Semester,
                 'start_date': semester.StartDate,
                 'end_date': semester.EndDate,
@@ -1317,8 +1316,7 @@ def save_class_location(request):
 class StudentNoticeView(View):
     def get(self, request):
         notices = StudentNoticeTable.objects.all()
-        batches = BatchTable.objects.all()
-        return render(request, 'student_notice_page.html', {'notices': notices, 'batches': batches})
+        return render(request, 'student_notice_page.html', {'notices': notices})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1329,8 +1327,6 @@ class StudentNoticeCreateUpdateView(View):
             notice_name = request.POST.get('NoticeName')
             notice_content = request.POST.get('NoticeContent')
             notice_type = request.POST.get('NoticeType')  # Notice Type from form
-            batch_selection = request.POST.get('batchSelection')  # Get 'all' or 'random'
-            batch_ids = request.POST.getlist('BatchName')  # List of selected batch IDs
             file_attachment = request.FILES.get('FileAttachment')
 
             if notice_id:
@@ -1343,11 +1339,7 @@ class StudentNoticeCreateUpdateView(View):
                     notice.File_Attachment = file_attachment
                 notice.save()
 
-                if batch_selection == 'all':
-                    notice.BatchName.set(BatchTable.objects.all())  # Associate all batches
-                else:
-                    notice.BatchName.set(BatchTable.objects.filter(id__in=batch_ids))
-
+         
                 return JsonResponse({'success': True, 'message': 'Notice updated successfully!'})
             else:
                 # Create a new notice
@@ -1358,10 +1350,7 @@ class StudentNoticeCreateUpdateView(View):
                     File_Attachment=file_attachment,
                 )
 
-                if batch_selection == 'all':
-                    notice.BatchName.set(BatchTable.objects.all())  # Associate all batches
-                else:
-                    notice.BatchName.set(BatchTable.objects.filter(id__in=batch_ids))
+         
 
                 return JsonResponse({'success': True, 'message': 'Notice created successfully!'})
 
@@ -1840,3 +1829,144 @@ class DownloadTeacherTimetablePDFAPI(APIView):
 
         pdf.save()  # Save the PDF
         return response  # Return the generated PDF
+
+
+
+from math import radians, sin, cos, sqrt, atan2
+
+# Function to calculate distance using Haversine formula
+def haversine(lat1, lon1, lat2, lon2):
+    # Ensure all inputs are floats
+    lat1, lon1, lat2, lon2 = map(float, [lat1, lon1, lat2, lon2])
+
+    R = 6371000  # Radius of Earth in meters
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+    a = sin(dlat/2) * sin(dlat/2) + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2) * sin(dlon/2)
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    
+    return R * c 
+
+# Fetch Timetable API
+from django.utils.timezone import localtime
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
+from .models import TimeTableTable
+from .serializers import TimeTableSerializer
+
+
+class FetchTimeTableView(APIView):
+  
+
+    def get(self, request,id, *args, **kwargs):
+        student=StudentTable.objects.filter(LOGIN__id=id).first()
+        print(student.ClassName.id)
+        
+        class_id = ClassTable.objects.filter(id=student.ClassName.id).first()
+        print(class_id)
+        if not class_id:
+            return Response({"message": "class_id parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # day = localtime().strftime("%A") 
+        # print(day)# Get today's day
+        day='Monday'
+        timetable_entries = TimeTableTable.objects.filter(ClassName__id=class_id.id, day=day)
+
+        if not timetable_entries.exists():
+            return Response({"message": "No timetable available for today."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = TimeTableSerializer(timetable_entries, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+from datetime import datetime, timedelta
+from django.utils.timezone import localtime
+
+class MarkAttendanceView(APIView):
+    def post(self, request,id, *args, **kwargs):
+        # class_id = request.data.get("class_id")
+        latitude = request.data.get("latitude")
+        longitude = request.data.get("longitude")
+        student=StudentTable.objects.filter(LOGIN__id=id).first()
+        class_id = ClassTable.objects.filter(id=student.ClassName.id).first()
+        print('------------->', request.data)
+
+        if not class_id or latitude is None or longitude is None:
+            print('---------if---->')
+            return Response({"message": "Missing required fields."}, status=status.HTTP_200_OK)
+
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+            print(latitude,longitude)
+        except ValueError:
+            print('---------expt---->')
+
+            return Response({"message": "Invalid latitude or longitude values."}, status=status.HTTP_200_OK)
+        from datetime import datetime, date,time
+        # current_time = localtime().time()
+        # Set Default Date and Time
+        DEFAULT_DATE = date(2025, 2, 17)  # ✅ Example default date
+        DEFAULT_TIME = datetime.strptime("18:45:00", "%H:%M:%S").time()  # ✅ Example default time
+
+        # Use defaults instead of system time
+        today = DEFAULT_DATE  # ✅ Ensure today is a `date` object
+        current_time = DEFAULT_TIME  # ✅ Ensure current_time is a `time` object
+        weekday_name = today.strftime("%A")  # ✅ Convert date to weekday name
+
+        print("Current Time:", current_time, "Today:", today, "Weekday:", weekday_name)
+
+        # Query periods that have started today
+        periods = TimeTableTable.objects.filter(
+            day=weekday_name,  # ✅ Ensure it matches database format ("Monday", "Tuesday", etc.)
+            start_time__lte=current_time  # ✅ Get periods that have already started
+        )
+
+        print("Periods:", periods)
+
+        # Manually filter for periods where current_time is within 20 minutes after start_time
+        current_period = None
+        for period in periods:
+            start_time = period.start_time
+            print("start_time",start_time)
+            start_plus_20 = (datetime.combine(today, start_time) + timedelta(minutes=40)).time()  # ✅ Fixed TypeError
+
+            if start_time <= current_time <= start_plus_20:
+                current_period = period
+                break  # ✅ Stop when we find the valid period
+        
+        print("Current Period:", current_period)
+        if not current_period:
+            print('---------cur period---->')
+
+            return Response({"message": "No active period for attendance."}, status=status.HTTP_200_OK)
+
+        # Get class Geo-fence location
+      
+        
+        class_instance = ClassTable.objects.filter(id=class_id.id).first()
+        print("class_instance",class_instance)
+  
+        class_lat, class_lon, radius = class_instance.Latitude, class_instance.Longitude, class_instance.Radius
+
+        # Check if user is within allowed geofence radius
+        distance = haversine(class_lat, class_lon, latitude, longitude)
+        print(distance)
+        if distance > radius:
+            print('---------cur period---->')
+            return Response({"error": "You are outside the allowed geofence area."}, status=status.HTTP_200_OK)
+
+        # Mark Attendance
+        attendance, created = AttendanceTable.objects.get_or_create(
+            StudentName=student,
+            Period=current_period,
+            Date=today,
+            defaults={"Status": "Present", "Attendance": 1},
+        )
+
+        if not created:
+            return Response({"message": "Attendance already marked."}, status=status.HTTP_200_OK)
+
+        return Response({"message": "Attendance marked successfully."}, status=status.HTTP_201_CREATED)

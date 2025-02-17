@@ -23,13 +23,6 @@
             <form id="semesterForm">
                 <input type="hidden" id="semesterId" name="semesterId" value="">
 
-                <label for="batchName">Batch Name</label>
-                <select id="batchName" name="BatchName" required>
-                    <option value="" disabled selected>Select Batch</option>
-                    {% for batch in batches %}
-                    <option value="{{ batch.id }}">{{ batch.BatchName }}</option>
-                    {% endfor %}
-                </select>
 
                 <label for="semester">Semester Name</label>
                 <input type="text" id="semester" name="Semester" placeholder="Enter Semester Name" required>
@@ -84,7 +77,6 @@
                         url: actionUrl,
                         data: {
                             'semesterId': semesterId,
-                            'BatchName': $('#batchName').val(),
                             'Semester': $('#semester').val(),
                             'StartDate': $('#startDate').val(),
                             'EndDate': $('#endDate').val(),
@@ -103,7 +95,6 @@
                                     // Append new row to the table
                                     $('#semesterTableBody').append(`
                                         <tr data-semester-id="${response.semester_id}">
-                                            <td class="batch-name">${response.batch_name}</td>
                                             <td class="semester-name">${response.semester}</td>
                                             <td class="start-date">${response.start_date}</td>
                                             <td class="end-date">${response.end_date}</td>
@@ -132,13 +123,11 @@
                 $(document).on('click', '.btn-edit', function () {
                     const row = $(this).closest('tr');
                     const semesterId = row.data('semester-id');
-                    const batchName = row.find('.batch-name').text();
                     const semesterName = row.find('.semester-name').text();
                     const startDate = row.find('.start-date').text();
                     const endDate = row.find('.end-date').text();
     
                     $('#semesterId').val(semesterId);
-                    $('#batchName').val(batchName);
                     $('#semester').val(semesterName);
                     $('#startDate').val(startDate);
                     $('#endDate').val(endDate);
